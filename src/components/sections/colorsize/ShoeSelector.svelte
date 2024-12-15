@@ -3,7 +3,7 @@
   import { products } from '../../../utils/data/products';
 
   export let index: number;
-  export let selection: { color: string; size: string };
+  export let selection: { color: string; size: string } = { color: '', size: '' };
 
   const dispatch = createEventDispatcher();
 
@@ -17,6 +17,7 @@
     dispatch('updateSelection', { field, value });
   }
 
+  $: selectedColor = selection.color || '';
   $: selectedSize = selection.size ? `MEN ${selection.size} / WOMEN ${Number(selection.size) + 1.5}` : 'Select Your Size';
 </script>
 
@@ -25,10 +26,10 @@
   
   <div class="selectors">
     <div class="select-group">
-      <label>Select Color: {selection.color || ""}</label>
+      <label>Select Color: {selectedColor}</label>
       <div class="select-wrapper">
         <select 
-          value={selection.color} 
+          value={selectedColor} 
           on:change={(e) => updateSelection('color', (e.target as HTMLSelectElement).value)}
         >
           <option value="" disabled>Select Color</option>
@@ -36,10 +37,12 @@
             <option value={color.name}>{color.name}</option>
           {/each}
         </select>
-        <img 
-          src={products[0].colors.find(c => c.name === (selection.color || products[0].colors[0].name))?.image} 
-          alt="Shoe preview"
-        />
+        {#if selectedColor}
+          <img 
+            src={products[0].colors.find(c => c.name === selectedColor)?.image} 
+            alt="Shoe preview"
+          />
+        {/if}
       </div>
     </div>
     
@@ -105,7 +108,7 @@
     background-color: white;
     font-size: 1rem;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     cursor: pointer;

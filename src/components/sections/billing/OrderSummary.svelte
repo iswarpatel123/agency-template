@@ -1,22 +1,52 @@
 <script lang="ts">
-  import { checkoutState } from '../../../stores/checkout';
-  import { products } from '../../../utils/data/products';
-  
-  $: total = $checkoutState.selections.reduce((acc, selection) => {
-    const product = products[0];
-    return acc + (product.price * $checkoutState.quantity);
-  }, 0);
-  $: discount = total * 0.4; // 40% discount
-  
+  import { onMount } from 'svelte';
+  import { products, type Product } from '../../../utils/data/products';
+  import { prices } from '../../../utils/data/prices';
+  import type { ShoeSelection } from '../../../stores/checkout';
+
+  let selectedQuantity: number = 1;
+  let selections: ShoeSelection[] = [];
+  let totalDiscountedPrice: number = 0;
+  let totalOriginalPrice: number = 0;
+  let finalPrice: number = 0;
+
+  onMount(() => {
+    const storedQuantity = window.localStorage.getItem('selectedQuantity');
+    const storedSelections = window.localStorage.getItem('selections');
+
+    if (storedQuantity) {
+      selectedQuantity = parseInt(storedQuantity);
+    }
+
+    if (storedSelections) {
+      selections = JSON.parse(storedSelections);
+    }
+
+    const priceInfo = prices[selectedQuantity] || prices[1]; // Default to 1 if quantity is not found
+    totalDiscountedPrice = priceInfo.pricePerPair * selectedQuantity;
+    totalOriginalPrice = priceInfo.originalPrice * selectedQuantity;
+    finalPrice = totalDiscountedPrice;
+  });
+
   function formatPrice(price: number) {
     return `$${price.toFixed(2)}`;
+  }
+
+  function getProductImage(selection: ShoeSelection): string {
+    const product: Product = products[0];
+    const color = product.colors.find(c => c.name === (selection.color || 'Black'));
+    return color ? color.image : '';
+  }
+
+  function handleEditOrder() {
+    window.location.href = '/checkout';
   }
 </script>
 
 <div class="order-summary">
   <div class="header">
     <h2>Order Summary</h2>
-    <span class="total">{formatPrice(total)}</span>
+    <span class="total">{formatPrice(finalPrice)}</span>
   </div>
 
   <div class="new-release">
@@ -25,18 +55,15 @@
     <p class="benefit">Relieve pressure on your feet and joints</p>
   </div>
 
-  {#each $checkoutState.selections as selection, i}
+  {#each selections as selection, i}
     <div class="item">
-      <img 
-        src={products[0].colors.find(c => c.name === (selection.color || 'Black'))?.image} 
-        alt="Grounded Freedom Shoes" 
-        class="shoe-image"
-      />
+      <img src={getProductImage(selection)} alt="Grounded Freedom Shoes" class="shoe-image" />
       <div class="item-details">
-        <h4>x{$checkoutState.quantity} Grounded Freedom Shoes</h4>
+        <h4>Grounded Freedom Shoes</h4>
+        <p>Quantity: 1</p>
         <p>Color: {selection.color || 'Black'}</p>
         <p>Size: MEN {selection.size} / WOMEN {Number(selection.size) + 1.5}</p>
-        <button class="edit-btn">Edit Order</button>
+        <button class="edit-btn" on:click={handleEditOrder}>Edit Order</button>
       </div>
     </div>
   {/each}
@@ -44,16 +71,16 @@
   <div class="price-details">
     <div class="retail">
       <span>Retail</span>
-      <span class="strike-through">{formatPrice(total / 0.6)}</span>
+      <span class="strike-through">{formatPrice(totalOriginalPrice)}</span>
     </div>
     <p class="shipping-note">Shipping and tax will be settled upon checkout confirmation</p>
     <div class="savings">
       <span>Today you saved</span>
-      <span class="discount">Discount: {formatPrice(total * 0.4)}</span>
+      <span class="discount">Discount: {formatPrice(totalOriginalPrice - finalPrice)}</span>
     </div>
     <div class="grand-total">
       <span>Grand Total:</span>
-      <span class="final-price">{formatPrice(total)}</span>
+      <span class="final-price">{formatPrice(finalPrice)}</span>
     </div>
   </div>
 

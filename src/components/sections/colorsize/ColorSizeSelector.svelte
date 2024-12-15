@@ -8,12 +8,13 @@
   let error = false;
   let localSelections: ShoeSelection[] = [];
 
-  // Update quantity from localStorage or event
   onMount(() => {
     const storedQuantity = window.localStorage.getItem('selectedQuantity');
     if (storedQuantity) {
       quantity = parseInt(storedQuantity);
     }
+
+    initializeLocalSelections();
 
     const handleQuantityChange = (e: CustomEvent) => {
       quantity = e.detail;
@@ -28,18 +29,30 @@
   });
 
   function initializeLocalSelections() {
-    localSelections = Array(quantity).fill(null).map((_, i) => ({
-      color: $checkoutState.selections[i]?.color || '',
-      size: $checkoutState.selections[i]?.size || ''
-    }));
+    const storedSelections = window.localStorage.getItem('selections');
+    if (storedSelections) {
+      localSelections = JSON.parse(storedSelections);
+      // Adjust the length of localSelections based on the current quantity
+      if (localSelections.length > quantity) {
+        localSelections = localSelections.slice(0, quantity);
+      } else if (localSelections.length < quantity) {
+        const additionalSelections = Array(quantity - localSelections.length).fill({ color: '', size: '' });
+        localSelections = [...localSelections, ...additionalSelections];
+      }
+    } else {
+      localSelections = Array(quantity).fill({ color: '', size: '' });
+    }
+    updateLocalStorage();
   }
-
-  // Initialize localSelections when quantity changes or component mounts
-  $: quantity, initializeLocalSelections();
 
   function updateLocalSelection(index: number, field: 'color' | 'size', value: string) {
     localSelections[index] = { ...localSelections[index], [field]: value };
     localSelections = localSelections; // Trigger reactivity
+    updateLocalStorage();
+  }
+
+  function updateLocalStorage() {
+    window.localStorage.setItem('selections', JSON.stringify(localSelections));
   }
 
   // Handle the "Next" button click
