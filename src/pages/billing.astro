@@ -13,7 +13,7 @@ import AddressForm from '../components/sections/billing/AddressForm.astro';
       <div class="billing-left">
         <Countdown initialMinutes={10} />
         <div class="order-summary-mobile">
-          <OrderSummary client:visible initialExpanded={true} />
+          <OrderSummary client:visible />
         </div>
         <div class="billing-form">
           <h1>Shipping address</h1>
