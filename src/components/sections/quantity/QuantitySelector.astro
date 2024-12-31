@@ -91,4 +91,51 @@ import QuantityOption from './QuantityOption.astro';
   .arrow {
     font-size: 1.25rem;
   }
+
+  .payment-info {
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .payment-cards {
+    max-width: 300px;
+    height: auto;
+  }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const storedQuantity = window.localStorage.getItem('selectedQuantity') || '1';
+    window.localStorage.setItem('selectedQuantity', storedQuantity);
+    
+    const options = document.querySelectorAll('.quantity-option');
+    options.forEach(option => {
+      const pairs = option.getAttribute('data-pairs');
+      const radio = option.querySelector('input[type="radio"]') as HTMLInputElement;
+      
+      if (pairs === storedQuantity) {
+        option.classList.add('selected');
+        if (radio) radio.checked = true;
+      }
+      
+      option.addEventListener('click', () => {
+        if (pairs) {
+          window.localStorage.setItem('selectedQuantity', pairs);
+          window.dispatchEvent(new CustomEvent('quantityChange', { detail: parseInt(pairs) }));
+          
+          options.forEach(opt => {
+            opt.classList.remove('selected');
+            const optRadio = opt.querySelector('input[type="radio"]') as HTMLInputElement;
+            if (optRadio) optRadio.checked = false;
+          });
+          
+          option.classList.add('selected');
+          if (radio) radio.checked = true;
+        }
+      });
+    });
+    
+    window.dispatchEvent(new CustomEvent('quantityChange', { detail: parseInt(storedQuantity) }));
+  });
+</script>
