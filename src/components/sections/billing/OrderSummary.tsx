@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { createEffect, createSignal, onMount } from 'solid-js';
+import { createEffect, createSignal, onMount, onCleanup } from 'solid-js';
 import { products } from '../../../utils/data/products';
 import { prices } from '../../../utils/data/prices';
 
@@ -13,7 +13,13 @@ const OrderSummary = () => {
   const [savePercentage, setSavePercentage] = createSignal<number>(0);
   const [isExpanded, setIsExpanded] = createSignal(false);
 
+  // Function to check if it's desktop view
+  const isDesktopView = () => window.innerWidth >= 768; // Adjust breakpoint as needed
+
   onMount(() => {
+    // Set initial expanded state based on view
+    setIsExpanded(isDesktopView());
+
     const storedQuantity = window.localStorage.getItem('selectedQuantity');
     const storedSelections = window.localStorage.getItem('selections');
 
@@ -31,6 +37,18 @@ const OrderSummary = () => {
       const selections = JSON.parse(storedSelections);
       setLocalSelections(selections);
     }
+
+    // Add event listener for window resize
+    const handleResize = () => {
+      // Only change isExpanded state if transitioning between desktop and mobile
+      if (isDesktopView() !== isExpanded()) {
+        setIsExpanded(isDesktopView());
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup event listener on unmount
+    onCleanup(() => window.removeEventListener('resize', handleResize));
   });
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
