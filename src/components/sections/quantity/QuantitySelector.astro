@@ -7,7 +7,6 @@ import QuantityOption from './QuantityOption.astro';
 <div class="quantity-selector">
   <div class="selector-container">
     <QuantityHeader />
-    
     <div class="options">
       {Object.entries(prices).map(([pairs, price]) => (
         <div class="quantity-option" data-pairs={pairs}>
@@ -21,7 +20,6 @@ import QuantityOption from './QuantityOption.astro';
         </div>
       ))}
     </div>
-
     <div class="px-4 mb-4">
       <button class="cta-button" onclick="document.querySelector('.color-size-selector').scrollIntoView({ behavior: 'smooth' })">
         Select Your Color and Size <span class="arrow">→</span>
@@ -32,13 +30,8 @@ import QuantityOption from './QuantityOption.astro';
 
 <style>
   .quantity-selector {
-    max-width: 600px;
-    margin: 0 auto;
+    width: 100%;
     font-family: "Poppins", sans-serif;
-  }
-
-  .quantity-selector + .color-size-selector {
-    margin-top: 2rem;
   }
 
   .selector-container {
@@ -90,17 +83,6 @@ import QuantityOption from './QuantityOption.astro';
 
   .arrow {
     font-size: 1.25rem;
-  }
-
-  .payment-info {
-    padding: 1rem;
-    display: flex;
-    justify-content: center;
-  }
-
-  .payment-cards {
-    max-width: 300px;
-    height: auto;
   }
 </style>
 

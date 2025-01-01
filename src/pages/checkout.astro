@@ -5,20 +5,28 @@ import ColorSizeSelector from '../components/sections/colorsize/ColorSizeSelecto
 import PaymentInfo from '../components/shared/PaymentInfo.astro';
 import Countdown from '../components/shared/Countdown.astro';
 import Footer from '../layouts/Footer.astro';
+import ProductInfo from '../components/sections/quantity/ProductInfo.astro'
 ---
 
 <Layout title="Checkout">
   <main class="checkout-page">
-    <div class="max-w-[600px] mx-auto w-full px-4">
+    <div class="max-w-[1000px] mx-auto w-full px-4">
       <Countdown coupon="HOLIDAY24" initialMinutes={10} />
-      <div class="mt-4">
-        <QuantitySelector />
-      </div>
-      <div class="mt-4">
-        <ColorSizeSelector client:visible />
-      </div>
-      <div class="mt-4">
-        <PaymentInfo />
+      <div class="mt-4 relative">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="flex-1">
+            <QuantitySelector />
+            <div class="mt-8">
+              <ColorSizeSelector client:visible />
+            </div>
+            <div class="mt-8">
+              <PaymentInfo />
+            </div>
+          </div>
+          <div class="hidden lg:block sticky-sidebar">
+            <ProductInfo />
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -30,5 +38,11 @@ import Footer from '../layouts/Footer.astro';
     background: #f8fafc;
     min-height: 100vh;
     padding: 2rem 0;
+  }
+
+  .sticky-sidebar {
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
   }
 </style>

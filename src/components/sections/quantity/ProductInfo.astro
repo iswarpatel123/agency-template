@@ -1,0 +1,73 @@
+---
+const rating = {
+  stars: 5,
+  count: "254,100+",
+  text: "Happy Customers"
+};
+---
+
+<div class="product-info hidden lg:block">
+  <div class="rating-section mb-6">
+    <div class="flex items-center gap-2">
+      <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="h-5" />
+      <span class="text-sm font-medium">{rating.count} {rating.text}</span>
+    </div>
+    <div class="mt-4">
+      <h2 class="text-xl font-bold mb-2">Grounded Footwear</h2>
+      <p class="text-gray-600">Barefoot Shoes</p>
+      <div class="flex gap-2 mt-2">
+        <img src="https://ae-pic-a1.aliexpress-media.com/kf/Sa97cb0ece6b94cbb8f31155e98fc1c03V.jpg_640x640.jpg_.webp" alt="Black shoe" class="w-16 h-16 object-cover rounded-lg" />
+        <img src="https://ae-pic-a1.aliexpress-media.com/kf/S899d2197729b4fd394499cd32e08b0696.jpg_640x640.jpg_.webp" alt="White shoe" class="w-16 h-16 object-cover rounded-lg" />
+      </div>
+    </div>
+  </div>
+
+  <div class="guarantee-section mb-6">
+    <div class="flex items-start gap-4">
+      <img src="https://offer.groundedfootwear.co/freedom/en/us/v7/images/30d.png" alt="30 day guarantee" class="w-16 h-16" />
+      <div>
+        <h3 class="font-bold mb-1">30 Day Money-Back Guarantee:</h3>
+        <p class="text-sm text-gray-600">Feel safe knowing you are protected with a 30 day guarantee. Simply send the item(s) back in the original packaging to receive a full refund or replacement, less S&H.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="reviews-section">
+    <div class="review mb-4">
+      <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="h-4 mb-2" />
+      <h3 class="font-bold mb-1">Perfect Sneaker Replacement!</h3>
+      <p class="text-sm text-gray-600 mb-2">Love these shoes! Lightweight and flexible, they replaced my sneakers. 5 stars!</p>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium">- Emily W.</span>
+        <span class="text-xs text-green-500">✓ Verified Purchaser</span>
+      </div>
+    </div>
+
+    <div class="review">
+      <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="h-4 mb-2" />
+      <h3 class="font-bold mb-1">Unbeatable Comfort and Value!</h3>
+      <p class="text-sm text-gray-600 mb-2">Most comfortable shoes I've ever bought. Great price too! Might get another pair!</p>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium">- Michael R.</span>
+        <span class="text-xs text-green-500">✓ Verified Purchaser</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .product-info {
+    width: 400px;
+    flex-shrink: 0;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+  }
+
+  @media (max-width: 1024px) {
+    .product-info {
+      display: none;
+    }
+  }
+</style>
