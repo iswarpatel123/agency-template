@@ -25,12 +25,12 @@ const { className } = Astro.props;
     </div>
 
     <div
-      class="grid border rounded-3xl border-box-border border-box-bg bg-box-bg shadow-lg divide-y divide-slate-200 dark:divide-slate-800 max-w-3xl mx-auto mt-8 overflow-hidden"
+      class="grid border rounded-3xl border-box-border border-box-bg bg-box-bg shadow-lg divide-y divide-slate-200 max-w-3xl mx-auto mt-8 overflow-hidden"
     >
       {
         faqs.map((faq: FAQProps) => {
           return (
-            <div class="py-5 px-5 hover:bg-slate-200 dark:hover:bg-slate-800">
+            <div class="py-5 px-5 hover:bg-slate-200">
               <details class="group">
                 <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-heading-1">
                   <span>{faq.question}</span>

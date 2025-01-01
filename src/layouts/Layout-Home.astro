@@ -23,7 +23,7 @@ const { title } = Astro.props;
     <title>Agency template - {title}</title>
     <link rel="stylesheet" href="/style/custom.css" />
   </head>
-  <body class="overflow-hidden overflow-y-auto bg-body font-sans">
+  <body class="overflow-hidden overflow-y-auto bg-body font-sans" data-theme="light">
     <Banner />
     <Navbar />
     <slot />
@@ -38,67 +38,12 @@ const { title } = Astro.props;
       const currentScrollY = window.scrollY;
 
       if (currentScrollY > lastScrollY) {
-        // Scrolling down: hide the banner
-        if (banner) banner.style.transform = "translateY(-100%)";
-        if (navbar) navbar.style.transform = "translateY(0)";
-      } else {
-        // Scrolling up: show the banner
         if (banner) banner.style.transform = "translateY(0)";
         if (navbar) navbar.style.transform = "translateY(0)";
       }
 
       lastScrollY = currentScrollY;
     });
-    detectSystemTheme();
-
-    const switchTheme = document.querySelector(
-      "[data-switch-theme]"
-    ) as HTMLButtonElement;
-    switchTheme.addEventListener("click", (e) => {
-      e.preventDefault();
-      changeThemeManually();
-    });
-
-    function changeThemeManually() {
-      const localAppTheme = localStorage.getItem("theme");
-      // Whenever the user explicitly chooses dark mode, previously it was light mode
-      if (localAppTheme === "light") {
-        changeThemeToDark();
-      }
-      // Whenever the user explicitly chooses light mode, previously it was dark mode
-      if (localAppTheme === "dark") {
-        changeThemeToLight();
-      }
-      if (!localAppTheme) {
-        console.log("previously it was not set");
-        // Whenever the user explicitly chooses to respect the OS preference
-        detectSystemTheme(true);
-      }
-    }
-
-    function detectSystemTheme(manual = false) {
-      if (
-        localStorage.getItem("theme") === "dark" ||
-        (!("theme" in localStorage) &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-        if (manual) localStorage.setItem("theme", "dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        if (manual) localStorage.setItem("theme", "light");
-      }
-    }
-
-    function changeThemeToDark() {
-      localStorage.setItem("theme", "dark");
-      document.documentElement.classList.add("dark");
-    }
-
-    function changeThemeToLight() {
-      localStorage.setItem("theme", "light");
-      document.documentElement.classList.remove("dark");
-    }
   </script>
   <script>
     const toggleMenu = document.querySelector(

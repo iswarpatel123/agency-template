@@ -2,10 +2,10 @@
 import { banner } from "../../utils/data/banner";
 ---
 
-<div id="banner" class="bg-green-600 dark:bg-green-700 py-4 text-center relative z-[60] transition-transform duration-300">
+<div id="banner" class="bg-green-600 py-4 text-center relative z-[60] transition-transform duration-300">
   {banner.map((text, index) => (
     <p
-      class="banner-text absolute inset-0 flex items-center justify-center text-white dark:text-gray-100 text-sm font-medium transition-opacity duration-500"
+      class="banner-text absolute inset-0 flex items-center justify-center text-white text-sm font-medium transition-opacity duration-500"
       data-index={index}
     >
       {text}
