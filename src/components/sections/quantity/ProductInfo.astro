@@ -1,4 +1,6 @@
 ---
+import MoneyBack from '../../shared/MoneyBack.astro';
+
 const rating = {
   stars: 5,
   count: "254,100+",
@@ -10,25 +12,22 @@ const rating = {
   <div class="rating-section mb-6">
     <div class="flex items-center gap-2">
       <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="h-5" />
-      <span class="text-sm font-medium">{rating.count} {rating.text}</span>
+      <span class="text-sm font-medium">{rating.count} {rating.text}</span><span class="text-sm font-medium text-red-600 ml-4">New 2024 Release</span>
     </div>
-    <div class="mt-4">
-      <h2 class="text-xl font-bold mb-2">Grounded Footwear</h2>
-      <p class="text-gray-600">Barefoot Shoes</p>
+    <div class="mt-4 flex items-center gap-4">
+      <div>
+        <h2 class="text-xl font-bold mb-2">Grounded Footwear</h2>
+        <p class="text-gray-600">Barefoot Shoes</p>
+      </div>
       <div class="flex gap-2 mt-2">
-        <img src="https://ae-pic-a1.aliexpress-media.com/kf/Sa97cb0ece6b94cbb8f31155e98fc1c03V.jpg_640x640.jpg_.webp" alt="Black shoe" class="w-16 h-16 object-cover rounded-lg" />
+        <img src="https://ae-pic-a1.aliexpress-media.com/kf/Sa97cb0ece6b94cbb8f31155e98fc1c03V.jpg_640x640.jpg_.webp" alt="Shoes" class="w-32 h-32 object-cover rounded-lg" />
       </div>
     </div>
   </div>
+  
 
   <div class="guarantee-section mb-6">
-    <div class="flex items-start gap-4">
-      <img src="https://offer.groundedfootwear.co/freedom/en/us/v7/images/30d.png" alt="30 day guarantee" class="w-16 h-16" />
-      <div>
-        <h3 class="font-bold mb-1">30 Day Money-Back Guarantee:</h3>
-        <p class="text-sm text-gray-600">Feel safe knowing you are protected with a 30 day guarantee. Simply send the item(s) back in the original packaging to receive a full refund or replacement, less S&H.</p>
-      </div>
-    </div>
+    <MoneyBack/>
   </div>
 
   <div class="reviews-section">
