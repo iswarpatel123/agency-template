@@ -162,7 +162,7 @@ const OrderSummary = () => {
 
         .item-details p {
           margin: 0.25rem 0;
-          color: #4b5563;
+          color: #000000;
           font-size: 0.875rem;
         }
 
@@ -178,11 +178,11 @@ const OrderSummary = () => {
 
         .strike-through {
           text-decoration: line-through;
-          color: #6b7280;
+          color: #000000;
         }
 
         .shipping-note {
-          color: #6b7280;
+          color: #000000;
           font-size: 0.875rem;
           margin: 0.5rem 0;
         }
@@ -202,7 +202,7 @@ const OrderSummary = () => {
         .close-btn, .expand-btn {
           width: 100%;
           text-align: center;
-          color: #4b5563;
+          color: #000000;
           background: none;
           border: none;
           padding: 1rem;
