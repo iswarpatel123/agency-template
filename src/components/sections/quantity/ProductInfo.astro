@@ -4,17 +4,31 @@ import MoneyBack from '../../shared/MoneyBack.astro';
 const rating = {
   stars: 5,
   count: "254,100+",
-  text: "Happy Customers"
+  text: "Happy Customers",
+  starPosition: {
+    top: '0',
+    left: '0',
+    right: 'auto',
+    bottom: 'auto'
+  }
 };
 ---
 
 <div class="product-info hidden lg:block">
   <div class="rating-section mb-6">
-    <div class="flex items-center gap-2">
-      <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="h-5" />
-      <span class="text-sm font-medium">{rating.count} {rating.text}</span><span class="text-sm font-medium text-red-600 ml-4">New 2024 Release</span>
+    <div class="flex flex-col gap-2">
+      <img 
+        src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" 
+        alt="5 stars" 
+        class="h-5"
+        style={`position: relative; top: ${rating.starPosition.top}; left: ${rating.starPosition.left = '-125px'}; right: ${rating.starPosition.right}; bottom: ${rating.starPosition.bottom};`}
+      />
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium">{rating.count} {rating.text}</span>
+        <span class="text-sm font-medium text-red-600">New 2024 Release</span>
+      </div>
     </div>
-    <div class="mt-4 flex items-center gap-4">
+    <div class="mt-2 flex items-center gap-4">
       <div>
         <h2 class="text-xl font-bold mb-2">
           <div>Grounded</div>
