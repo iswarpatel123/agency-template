@@ -64,15 +64,6 @@ const OrderSummary = () => {
 
       {isExpanded() ? (
         <>
-          <div class="new-release">
-            <h3>New 2024 Release</h3>
-            <div class="rating">
-              <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="stars" />
-              <span>27,983+ Happy Customers</span>
-            </div>
-            <p class="benefit">Relieve pressure on your feet and joints</p>
-          </div>
-
           {localSelections().map((item) => (
             <div class="item">
               <img
@@ -147,34 +138,6 @@ const OrderSummary = () => {
         .total {
           font-size: 1.25rem;
           font-weight: 600;
-        }
-
-        .new-release {
-          padding: 1rem;
-          border-bottom: 1px solid #e2e8f0;
-        }
-
-        .new-release h3 {
-          color: #ef4444;
-          font-size: 1.125rem;
-          margin: 0 0 0.5rem 0;
-        }
-
-        .rating {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .stars {
-          height: 1rem;
-        }
-
-        .benefit {
-          color: #4b5563;
-          margin: 0;
-          font-size: 0.875rem;
         }
 
         .item {
