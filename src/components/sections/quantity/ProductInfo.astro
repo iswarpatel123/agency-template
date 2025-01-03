@@ -1,134 +1,162 @@
 ---
-import MoneyBack from '../../shared/MoneyBack.astro';
+import MoneyBack from "../../shared/MoneyBack.astro";
 
 const rating = {
   stars: 5,
   count: "254,100+",
   text: "Happy Customers",
   starPosition: {
-    top: '0',
-    left: '0px',
-    right: 'auto',
-    bottom: 'auto'
+    top: "0",
+    left: "0px",
+    right: "auto",
+    bottom: "auto",
   },
   newReleasePosition: {
-    top: '0px',
-    left: '0px',
-    right: 'auto',
-    bottom: 'auto'
+    top: "0px",
+    left: "0px",
+    right: "auto",
+    bottom: "auto",
   },
   shoePosition: {
-    top: '0px',
-    left: '0px',
-    right: 'auto',
-    bottom: 'auto'
+    top: "0px",
+    left: "0px",
+    right: "auto",
+    bottom: "auto",
   },
   titlePosition: {
-    top: '0px',
-    left: '0px',
-    right: 'auto',
-    bottom: 'auto'
+    top: "0px",
+    left: "0px",
+    right: "auto",
+    bottom: "auto",
   },
   subtitlePosition: {
-    top: '0px',
-    left: '0',
-    right: 'auto',
-    bottom: 'auto'
-  }
+    top: "0px",
+    left: "0",
+    right: "auto",
+    bottom: "auto",
+  },
 };
 ---
 
 <div class="product-info hidden lg:block">
   <div class="rating-section mb-6">
     <div class="flex flex-col gap-2">
-      <img 
-        src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" 
-        alt="5 stars" 
+      <img
+        src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg"
+        alt="5 stars"
         class="h-5"
-        style={`position: relative; top: ${rating.starPosition.top}; left: ${rating.starPosition.left = '-125px'}; right: ${rating.starPosition.right}; bottom: ${rating.starPosition.bottom};`}
+        style={`position: relative; top: ${rating.starPosition.top}; left: ${(rating.starPosition.left = "-125px")}; right: ${rating.starPosition.right}; bottom: ${rating.starPosition.bottom};`}
       />
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium">{rating.count} {rating.text}</span>
-        <span 
+        <span
           class="text-sm font-medium text-red-600"
-          style={`position: relative; top: ${rating.newReleasePosition.top}; left: ${rating.newReleasePosition.left = '46px'}; right: ${rating.newReleasePosition.right}; bottom: ${rating.newReleasePosition.bottom};`}
+          style={`position: relative; top: ${rating.newReleasePosition.top}; left: ${(rating.newReleasePosition.left = "46px")}; right: ${rating.newReleasePosition.right}; bottom: ${rating.newReleasePosition.bottom};`}
         >
-          <p class="text-sm text-red"><span class="font-bold">New 2024 Release</span>
+          <p class="text-sm text-red">
+            <span class="font-bold">New 2024 Release</span>
+          </p>
         </span>
       </div>
-    </div>
-    <div class="mt-2 flex items-center gap-4">
-      <div>
-        <h2 
-          class="text-xl font-bold mb-2"
-          style={`position: relative; top: ${rating.titlePosition.top}; left: ${rating.titlePosition.left}; right: ${rating.titlePosition.right}; bottom: ${rating.titlePosition.bottom};`}
-        >
-          <div>Grounded</div>
-          <div>Footwear</div>
-        </h2>
-        <p 
-          class="text-black"
-          style={`position: relative; top: ${rating.subtitlePosition.top}; left: ${rating.subtitlePosition.left}; right: ${rating.subtitlePosition.right}; bottom: ${rating.subtitlePosition.bottom};`}
-        >
-          Barefoot Shoes
-        </p>
+      <div class="flex items-center gap-4">
+        <div>
+          <h2
+            class="text-xl font-bold mb-2"
+            style={`position: relative; top: ${rating.titlePosition.top}; left: ${rating.titlePosition.left}; right: ${rating.titlePosition.right}; bottom: ${rating.titlePosition.bottom};`}
+          >
+            <div>Grounded</div>
+            <div>Footwear</div>
+          </h2>
+          <p
+            class="text-black"
+            style={`position: relative; top: ${rating.subtitlePosition.top}; left: ${rating.subtitlePosition.left}; right: ${rating.subtitlePosition.right}; bottom: ${rating.subtitlePosition.bottom};`}
+          >
+            Barefoot Shoes
+          </p>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <img
+            src="/src/assets/logos/transparentShoe.webp"
+            alt="Shoes"
+            class="w-48 h-48 object-contain rounded-lg"
+            style={`position: relative; top: ${rating.shoePosition.top}; left: ${(rating.starPosition.left = "45px")}; right: ${rating.shoePosition.right}; bottom: ${rating.shoePosition.bottom};`}
+          />
+        </div>
       </div>
-      <div class="flex gap-2 mt-2">
-        <img 
-          src="https://ae-pic-a1.aliexpress-media.com/kf/Sa97cb0ece6b94cbb8f31155e98fc1c03V.jpg_640x640.jpg_.webp" 
-          alt="Shoes" 
-          class="w-48 h-48 object-contain rounded-lg"
-          style={`position: relative; top: ${rating.shoePosition.top}; left: ${rating.starPosition.left = '45px'}; right: ${rating.shoePosition.right}; bottom: ${rating.shoePosition.bottom};`}
+    </div>
+    <hr class="my-6 border-gray-300" />
+
+    <div class="guarantee-section mb-6">
+      <MoneyBack />
+    </div>
+
+    <hr class="my-6 border-gray-300" />
+
+    <div class="reviews-section">
+      <div class="review mb-4">
+        <img
+          src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg"
+          alt="5 stars"
+          class="h-4 mb-2"
         />
+        <h3 class="font-bold mb-1">Perfect Sneaker Replacement!</h3>
+        <p class="text-sm text-black mb-2">
+          Love these shoes! Lightweight and flexible, they replaced my sneakers.
+          5 stars!
+        </p>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium">- Emily W.</span>
+          <span class="text-xs text-green-500"
+            ><img
+              src="https://offer.groundedfootwear.co/freedom/en/us/img/shield-checkmark.svg"
+              alt="Verified Purchaser"
+              class="h-4 inline-block"
+            /> Verified Purchaser</span
+          >
+        </div>
+      </div>
+
+      <hr class="my-6 border-gray-300" />
+
+      <div class="review mb-4">
+        <img
+          src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg"
+          alt="5 stars"
+          class="h-4 mb-2"
+        />
+        <h3 class="font-bold mb-1">Unbeatable Comfort and Value!</h3>
+        <p class="text-sm text-black mb-2">
+          Most comfortable shoes I've ever bought. Great price too! Might get
+          another pair!
+        </p>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium">- Michael R.</span>
+          <span class="text-xs text-green-500"
+            ><img
+              src="https://offer.groundedfootwear.co/freedom/en/us/img/shield-checkmark.svg"
+              alt="Verified Purchaser"
+              class="h-4 inline-block"
+            /> Verified Purchaser</span
+          >
+        </div>
       </div>
     </div>
   </div>
-  <hr class="my-6 border-gray-300">
 
-  <div class="guarantee-section mb-6">
-    <MoneyBack/>
-  </div>
-
-  <hr class="my-6 border-gray-300">
-
-  <div class="reviews-section">
-    <div class="review mb-4">
-      <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="h-4 mb-2" />
-      <h3 class="font-bold mb-1">Perfect Sneaker Replacement!</h3>
-      <p class="text-sm text-black mb-2">Love these shoes! Lightweight and flexible, they replaced my sneakers. 5 stars!</p>
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-medium">- Emily W.</span>
-        <span class="text-xs text-green-500"><img src="https://offer.groundedfootwear.co/freedom/en/us/img/shield-checkmark.svg" alt="Verified Purchaser" class="h-4 inline-block"> Verified Purchaser</span>
-      </div>
-    </div>
-
-    <hr class="my-6 border-gray-300">
-
-    <div class="review mb-4">
-      <img src="https://offer.groundedfootwear.co/freedom/en/us/img/stars-5.svg" alt="5 stars" class="h-4 mb-2" />
-      <h3 class="font-bold mb-1">Unbeatable Comfort and Value!</h3>
-      <p class="text-sm text-black mb-2">Most comfortable shoes I've ever bought. Great price too! Might get another pair!</p>
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-medium">- Michael R.</span>
-        <span class="text-xs text-green-500"><img src="https://offer.groundedfootwear.co/freedom/en/us/img/shield-checkmark.svg" alt="Verified Purchaser" class="h-4 inline-block"> Verified Purchaser</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-  .product-info {
-    width: 400px;
-    flex-shrink: 0;
-    padding: 1.5rem;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-  }
-
-  @media (max-width: 1024px) {
+  <style>
     .product-info {
-      display: none;
+      width: 400px;
+      flex-shrink: 0;
+      padding: 1.5rem;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
     }
-  }
-</style>
+
+    @media (max-width: 1024px) {
+      .product-info {
+        display: none;
+      }
+    }
+  </style>
+</div>
