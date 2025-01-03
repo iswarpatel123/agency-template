@@ -5,7 +5,8 @@ import ColorSizeSelector from '../components/sections/colorsize/ColorSizeSelecto
 import PaymentInfo from '../components/shared/PaymentInfo.astro';
 import Countdown from '../components/shared/Countdown.astro';
 import Footer from '../layouts/Footer.astro';
-import ProductInfo from '../components/sections/quantity/ProductInfo.astro'
+import ProductInfo from '../components/sections/quantity/ProductInfo.astro';
+import PaymentForm from '../components/sections/PaymentForm.astro'
 ---
 
 <Layout title="Checkout">
@@ -18,6 +19,7 @@ import ProductInfo from '../components/sections/quantity/ProductInfo.astro'
             <QuantitySelector />
             <div class="mt-8">
               <ColorSizeSelector client:visible />
+              <PaymentForm />
             </div>
             <div class="mt-8">
               <PaymentInfo />
