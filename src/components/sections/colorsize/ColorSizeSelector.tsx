@@ -93,11 +93,10 @@ const ColorSizeSelector = (): JSX.Element => {
     );
     window.localStorage.setItem('shoeSelection', JSON.stringify(selection));
 
-    // Scroll down smoothly
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: 'smooth'
-    });
+    const paymentInfo = document.querySelector('.billing-form.payment-info');
+    if (paymentInfo) {
+      paymentInfo.scrollIntoView({ behavior: 'smooth' });
+    }
 
     // Remove redirection logic
   };
