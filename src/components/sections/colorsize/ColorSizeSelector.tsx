@@ -77,7 +77,9 @@ const ColorSizeSelector = (): JSX.Element => {
   });
 
   const handleNext = () => {
+    console.log("Next button clicked"); // Debugging line
     if (selectedColors().includes('') || selectedSizes().includes('')) {
+      console.log("Error: Colors or sizes not selected"); // Debugging line
       setError(true);
       return;
     }
@@ -91,7 +93,13 @@ const ColorSizeSelector = (): JSX.Element => {
     );
     window.localStorage.setItem('shoeSelection', JSON.stringify(selection));
 
-    window.location.href = '/billing';
+    // Scroll down smoothly
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth'
+    });
+
+    // Remove redirection logic
   };
 
   return (
@@ -148,6 +156,13 @@ const ColorSizeSelector = (): JSX.Element => {
         ))}
 
         <div class="px-4 mb-4">
+          <button class="scroll-to-payment" onClick={() => {
+            const paymentInfo = document.querySelector('.payment-info');
+            if (paymentInfo) {
+              paymentInfo.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}>
+          </button>
           <button class="next-button" onClick={handleNext}>
             Next <span>→</span>
           </button>
