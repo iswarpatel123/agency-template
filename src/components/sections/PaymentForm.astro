@@ -1,15 +1,20 @@
 ---
 import AddressForm from './billing/AddressForm.astro';
+import MoneyBack from '../shared/MoneyBack.astro'; // Importing MoneyBack component
 ---
 
 <div class="billing-form payment-info">
 
-    <h1 class="shipping-title">Shipping address</h1>
     <form>
+      <h1 class="shipping-title">Shipping address</h2>
       <input type="email" placeholder="Email address" required />
       <AddressForm type="shipping" />
 
       <h2 class="payment-title bold-text">Payment</h2>
+
+<div class="moneyback-container mobile-only">
+  <MoneyBack />
+</div>
       <div class="payment-method">
         <label>
           <input type="radio" name="payment" checked />
@@ -257,6 +262,16 @@ justify-content: center; /* Center horizontally */
     @media (max-width: 768px) {
       .order-summary-mobile {
         display: block;
+      }
+      .moneyback-container.mobile-only {
+        display: block;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .moneyback-container.mobile-only {
+        display: none;
       }
   
       .order-summary-wrapper {
