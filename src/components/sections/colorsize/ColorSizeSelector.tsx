@@ -119,7 +119,7 @@ const ColorSizeSelector = (): JSX.Element => {
         {Array.from({ length: selectedColors().length }).map((_, index) => (
           <div class="selection">
             <div class="colors">
-              <h3>Select Color for Pair {index + 1}</h3>
+              <h3> {index + 1}. Select Color: </h3>
               <div class="color-options">
                 {products[0].colors.map((color) => (
                   <button
