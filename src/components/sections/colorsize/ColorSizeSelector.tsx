@@ -104,10 +104,8 @@ const ColorSizeSelector = (): JSX.Element => {
   return (
     <div class="color-size-selector mt-8">
       <div class="selector-container">
-        <div class="header">
           <div class="title-bar">
             <h2>2. Select Your Color and Size</h2>
-          </div>
         </div>
 
         {error() && (
@@ -136,7 +134,7 @@ const ColorSizeSelector = (): JSX.Element => {
             </div>
 
             <div class="sizes">
-              <h3>Select Size for Pair {index + 1}</h3>
+              <h3>Select Your Size</h3>
               <div class="size-options">
                 {products[0].sizes.map((size) => (
                   <button
@@ -182,10 +180,6 @@ const ColorSizeSelector = (): JSX.Element => {
           padding-bottom: 1rem;
         }
 
-        .header {
-          margin-bottom: 2rem;
-        }
-
         .title-bar {
           background: #004236;
           color: white;
@@ -194,7 +188,7 @@ const ColorSizeSelector = (): JSX.Element => {
 
         h2 {
           margin: 0;
-          font-size: 1.25rem;
+          font-size: 1.0rem;
           font-weight: 600;
         }
 
@@ -209,11 +203,14 @@ const ColorSizeSelector = (): JSX.Element => {
 
         .colors,
         .sizes {
-          padding: 1.5rem;
+          padding-top: 0.5rem;
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+          padding-bottom: 0.5rem;
         }
 
         h3 {
-          font-size: 1.25rem;
+          font-size: 1.0rem;
           font-weight: 600;
           margin-bottom: 1rem;
         }
