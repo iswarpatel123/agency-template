@@ -4,33 +4,33 @@ const brands = {
     {
       id: 1,
       name: "Tik Tok",
-      logo: "/assets/logos/tikTokLogo.webp"
+      logo: "/assets/brands/tikTokLogo.webp"
     },
     {
       id: 2,
       name: "Forbes",
-      logo: "/assets/logos/forbesLogo.webp"
+      logo: "/assets/brands/forbesLogo.webp"
 
     },
     {
       id: 3,
       name: "USA Today",
-      logo: "/assets/logos/usaTodayLogo.webp"
+      logo: "/assets/brands/usaTodayLogo.webp"
     },
     {
       id: 4,
       name: "Wired",
-      logo: "/assets/logos/wiredLogo.webp"
+      logo: "/assets/brands/wiredLogo.webp"
     },
     {
       id: 5,
       name: "Vogue Business",
-      logo: "/assets/logos/vogueBusiness.webp"
+      logo: "/assets/brands/vogueBusiness.webp"
     },
     {
       id: 6,
       name: "New York Times",
-      logo: "/assets/logos/theNewYorkTimes.webp"
+      logo: "/assets/brands/theNewYorkTimes.webp"
     }
   ]
 };

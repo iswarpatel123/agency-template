@@ -22,7 +22,7 @@ const { className = "" } = Astro.props;
             <img
               src={testimonial.image}
               alt={`${testimonial.name}'s testimonial`}
-              class="w-full h-auto object-cover rounded-lg"
+              class="w-full h-96 object-cover rounded-lg"
             />
           </div>
           <div class="mb-4">
@@ -37,7 +37,7 @@ const { className = "" } = Astro.props;
           <div class="flex items-center mt-auto">
             <span class="text-heading-1">{testimonial.name}</span>
             <img 
-              src="https://offer.groundedfootwear.co/freedom/en/us/img/shield-checkmark.svg"
+              src="/assets/shared/shield-checkmark.svg"
               alt="Verified"
               class="h-5 w-5 ml-2"
             />
