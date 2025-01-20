@@ -1,298 +1,456 @@
 ---
-import AddressForm from './billing/AddressForm.astro';
-import MoneyBack from '../shared/MoneyBack.astro';
+import AddressForm from "./billing/AddressForm.astro";
+import MoneyBack from "../shared/MoneyBack.astro";
 ---
 
 <div class="billing-form payment-info">
+  <form>
+    <h1 class="shipping-title">Shipping address</h1>
+    <input type="email" placeholder="Email address" required />
+    <AddressForm type="shipping" />
 
-    <form>
-      <h1 class="shipping-title">Shipping address</h2>
-      <input type="email" placeholder="Email address" required />
-      <AddressForm type="shipping" />
+    <h2 class="payment-title bold-text">Payment</h2>
 
-      <h2 class="payment-title bold-text">Payment</h2>
-
-      <div class="moneyback-container mobile-only">
-        <MoneyBack />
-      </div>
-      <div class="payment-method">
-        <label>
-          <input type="radio" name="payment" checked />
-          Credit Card
-        </label>
-        <img
-          src="/assets/checkout/cards.webp"
-          alt="Credit Cards"
-        />
-      </div>
-      <div class="card-number-container">
-        <input type="text" placeholder="Card number" required />
-        <img
-          src="/assets/checkout/card-lock.webp"
-          alt="Lock"
-          class="lock-icon"
-        />
-        <div class="speech-bubble" style="display: none;">
-          All transactions are secure and encrypted.
-        </div>
-      </div>
-      <div class="expiry-security">
-        <input type="text" placeholder="Month" required />
-        <input type="text" placeholder="Year" required />
-        <input type="text" placeholder="Security code" required />
-      </div>
-      <label class="checkbox-label">
-        <input type="checkbox" id="same-address" checked />
-        Use shipping address as billing address
+    <div class="moneyback-container mobile-only">
+      <MoneyBack />
+    </div>
+    <div class="payment-method">
+      <label>
+        <input type="radio" name="payment" checked />
+        Credit Card
       </label>
-      <div id="billing-address" class="billing-address hidden">
-        <h2>Billing Address</h2>
-        <AddressForm type="billing" />
+      <img src="/assets/checkout/cards.webp" alt="Credit Cards" />
+    </div>
+    <div class="card-number-container">
+      <input type="text" placeholder="Card number" required />
+      <img src="/assets/checkout/card-lock.webp" alt="Lock" class="lock-icon" />
+      <div class="speech-bubble" style="display: none;">
+        All transactions are secure and encrypted.
       </div>
-      <button type="submit">Complete Your Secure Purchase</button>
-    </form>
-  </div>
+    </div>
+    <div class="expiry-security">
+      <input type="text" placeholder="Month" required />
+      <input type="text" placeholder="Year" required />
+      <input type="text" placeholder="Security code" required />
+    </div>
+    <label class="checkbox-label">
+      <input type="checkbox" id="same-address" checked />
+      Use shipping address as billing address
+    </label>
+    <div id="billing-address" class="billing-address hidden">
+      <h2>Billing Address</h2>
+      <AddressForm type="billing" />
+    </div>
+    <button type="submit">Complete Your Secure Purchase</button>
+  </form>
+</div>
 
-  <script>
-    const sameAddressCheckbox = document.getElementById(
-      "same-address"
-    ) as HTMLInputElement;
-    const billingAddressSection = document.getElementById("billing-address");
-  
-    sameAddressCheckbox?.addEventListener("change", () => {
-      billingAddressSection?.classList.toggle(
-        "hidden",
-        sameAddressCheckbox.checked
-      );
+<script>
+  const sameAddressCheckbox = document.getElementById(
+    "same-address",
+  ) as HTMLInputElement;
+  const billingAddressSection = document.getElementById("billing-address");
+
+  sameAddressCheckbox?.addEventListener("change", () => {
+    billingAddressSection?.classList.toggle(
+      "hidden",
+      sameAddressCheckbox.checked,
+    );
+  });
+
+  const lockIcon = document.querySelector(".lock-icon");
+  const speechBubble = document.querySelector(".speech-bubble");
+
+  if (lockIcon instanceof HTMLElement && speechBubble instanceof HTMLElement) {
+    lockIcon.addEventListener("click", (event) => {
+      event.stopPropagation();
+      speechBubble.style.display =
+        speechBubble.style.display === "none" ? "block" : "none";
     });
-  
-    const lockIcon = document.querySelector(".lock-icon");
-    const speechBubble = document.querySelector(".speech-bubble");
-  
-    if (lockIcon instanceof HTMLElement && speechBubble instanceof HTMLElement) {
-      lockIcon.addEventListener("click", (event) => {
-        event.stopPropagation();
-        speechBubble.style.display =
-          speechBubble.style.display === "none" ? "block" : "none";
-      });
-  
-      document.addEventListener("click", () => {
-        speechBubble.style.display = "none";
-      });
+
+    document.addEventListener("click", () => {
+      speechBubble.style.display = "none";
+    });
+  }
+
+  interface ValidationRules {
+    [key: string]: {
+      validator: (value: string) => boolean;
+      errorMessage: string;
+    };
+  }
+
+  const validationRules: ValidationRules = {
+    email: {
+      validator: (value: string) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()),
+      errorMessage: "Please enter a valid email address",
+    },
+    cardNumber: {
+      validator: (value: string) => {
+        const cleanValue = value.replace(/\s/g, "");
+        // Basic length check for most credit card types (13-19 digits)
+        if (!/^\d{13,19}$/.test(cleanValue)) {
+          return false;
+        }
+        // Luhn algorithm check
+        let sum = 0;
+        let shouldDouble = false;
+        for (let i = cleanValue.length - 1; i >= 0; i--) {
+          let digit = parseInt(cleanValue.charAt(i));
+          if (shouldDouble) {
+            digit *= 2;
+            if (digit > 9) digit -= 9;
+          }
+          sum += digit;
+          shouldDouble = !shouldDouble;
+        }
+        return sum % 10 === 0;
+      },
+      errorMessage: "Please enter a valid credit card number (13-19 digits)",
+    },
+  };
+
+  function validateField(input: HTMLInputElement, validationType: string) {
+    const value = input.value;
+    const rule = validationRules[validationType];
+
+    if (!rule) return;
+
+    if (value.length === 0) {
+      input.classList.remove("valid", "invalid");
+      input.setCustomValidity("");
+      return;
     }
-  </script>
-  
-  <style>
-    .billing-page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
+
+    const isFieldValid = rule.validator(value);
+    input.classList.toggle("valid", isFieldValid);
+    input.classList.toggle("invalid", !isFieldValid);
+
+    // Set custom validity message for HTML5 validation
+    input.setCustomValidity(isFieldValid ? "" : rule.errorMessage);
+    // Don't show the error message immediately
+    // input.reportValidity();
+  }
+
+  // Setup email validation on form submit
+  const emailInput = document.querySelector(
+    'input[type="email"]',
+  ) as HTMLInputElement;
+
+  // Setup credit card validation with formatting on form submit
+  const cardNumberInput = document.querySelector(
+    ".card-number-container input",
+  ) as HTMLInputElement;
+
+  // Function to format card number
+  function formatCardNumber(input: HTMLInputElement) {
+    let value = input.value.replace(/\s/g, "");
+    let formattedValue = "";
+    for (let i = 0; i < value.length; i++) {
+      if (i > 0 && i % 4 === 0) {
+        formattedValue += " ";
+      }
+      formattedValue += value[i];
     }
-  
-    .hidden {
-      display: none;
+    input.value = formattedValue;
+  }
+
+  // Format card number on input
+  cardNumberInput?.addEventListener("input", () => {
+    formatCardNumber(cardNumberInput);
+  });
+
+  // Validate form on submit
+  const form = document.querySelector("form") as HTMLFormElement;
+  form?.addEventListener("submit", (event) => {
+    // Validate email
+    validateField(emailInput, "email");
+
+    // Validate card number
+    validateField(cardNumberInput, "cardNumber");
+
+    // Format card number
+    formatCardNumber(cardNumberInput);
+
+    const emailValue = emailInput?.value || "";
+    const cardNumber = cardNumberInput?.value.replace(/\s/g, "") || "";
+
+    let isFormValid = true;
+
+    if (!validationRules.email.validator(emailValue)) {
+      event.preventDefault();
+      emailInput?.setCustomValidity(validationRules.email.errorMessage);
+      emailInput?.reportValidity();
+      isFormValid = false;
     }
-  
+
+    if (!validationRules.cardNumber.validator(cardNumber)) {
+      event.preventDefault();
+      cardNumberInput?.setCustomValidity(
+        validationRules.cardNumber.errorMessage,
+      );
+      cardNumberInput?.reportValidity();
+      isFormValid = false;
+    }
+
+    let isCardValid = true;
+
+    if (!validationRules.email.validator(emailValue)) {
+      event.preventDefault();
+      emailInput?.setCustomValidity(validationRules.email.errorMessage);
+      emailInput?.reportValidity();
+      isCardValid = false;
+    }
+
+    if (!validationRules.cardNumber.validator(cardNumber)) {
+      event.preventDefault();
+      cardNumberInput?.setCustomValidity(
+        validationRules.cardNumber.errorMessage,
+      );
+      cardNumberInput?.reportValidity();
+      isCardValid = false;
+    }
+
+    return isFormValid;
+  });
+</script>
+
+<style>
+  .billing-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .order-summary-mobile {
+    display: none;
+  }
+
+  .order-summary-wrapper {
+    display: block;
+  }
+
+  .billing-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .billing-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .billing-right {
+    flex: 0 0 400px;
+  }
+
+  .billing-form {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .payment-title {
+    text-align: left;
+    margin: 1rem 0;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  select {
+    padding: 0.75rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #f9f9f9;
+    color: #000;
+    font-weight: 600;
+    width: 100%;
+  }
+
+  .shipping-title,
+  .bold-text {
+    font-weight: bold;
+  }
+
+  button[type="submit"] {
+    background: #000;
+    color: #fff;
+    padding: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: 600;
+    height: 48px;
+    line-height: 48px; /* Align text vertically */
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  h1,
+  h2 {
+    color: #000;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .payment-method {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #f9f9f9;
+  }
+
+  .payment-method img {
+    height: 24px;
+  }
+
+  .payment-method label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #000;
+  }
+
+  .expiry-security {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .expiry-security input {
+    width: 33.33%;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #000;
+  }
+
+  .billing-address {
+    padding-top: 1rem;
+    margin-top: 1rem;
+  }
+
+  .lock-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .card-number-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .speech-bubble {
+    position: absolute;
+    right: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #000;
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .speech-bubble::after {
+    content: "";
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 8px solid transparent;
+  }
+
+  input.valid,
+  input[type="email"].valid {
+    border: 2px solid green;
+  }
+
+  input.invalid,
+  input[type="email"].invalid {
+    border: 2px solid red;
+  }
+
+  @media (max-width: 768px) {
     .order-summary-mobile {
-      display: none;
-    }
-  
-    .order-summary-wrapper {
       display: block;
     }
-  
-    .billing-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
+    .moneyback-container.mobile-only {
+      display: block;
     }
-  
-    .billing-left {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-  
-    .billing-right {
-      flex: 0 0 400px;
-    }
-  
-    .billing-form {
-      background-color: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-  
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      width: 100%;
-    }
-  
-    .payment-title {
-      text-align: left;
-      margin: 1rem 0;
-    }
-  
-    input[type="text"],
-    input[type="email"],
-    select {
-      padding: 0.75rem;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: #f9f9f9;
-      color: #000;
-      font-weight: 600;
-      width: 100%;
-    }
-  
-    .shipping-title,
-    .bold-text {
-      font-weight: bold;
-    }
-  
-    button[type="submit"] {
-      background: #000;
-      color: #fff;
-      padding: 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 100%;
-      font-weight: 600;
-      height: 48px;
-      line-height: 48px; /* Align text vertically */
-      display: flex; /* Use flexbox for centering */
-      align-items: center; /* Center vertically */
-      justify-content: center; /* Center horizontally */
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-  
-    h1, h2 {
-      color: #000;
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      text-align: left;
-    }
-  
-    .payment-method {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: #f9f9f9;
-    }
-  
-    .payment-method img {
-      height: 24px;
-    }
-  
-    .payment-method label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #000;
-    }
-  
-    .expiry-security {
-      display: flex;
-      gap: 0.5rem;
-    }
-  
-    .expiry-security input {
-      width: 33.33%;
-    }
-  
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #000;
-    }
-  
-    .billing-address {
-      padding-top: 1rem;
-      margin-top: 1rem;
-    }
-  
-    .lock-icon {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
-  
-    .card-number-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-  
-    .speech-bubble {
-      position: absolute;
-      right: 3rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: #000;
-      color: #fff;
-      padding: 0.5rem;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-  
-    .speech-bubble::after {
-      content: '';
-      position: absolute;
-      right: -8px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: 8px solid transparent;
-      border-left-color: #000;
-    }
-  
-    @media (max-width: 768px) {
-      .order-summary-mobile {
-        display: block;
-      }
-      .moneyback-container.mobile-only {
-        display: block;
-      }
+  }
+
+  @media (min-width: 769px) {
+    .moneyback-container.mobile-only {
+      display: none;
     }
 
-    @media (min-width: 769px) {
-      .moneyback-container.mobile-only {
-        display: none;
-      }
-  
-      .order-summary-wrapper {
-        display: none;
-      }
+    .order-summary-wrapper {
+      display: none;
     }
-  
-    @media (max-width: 600px) {
-      .billing-page {
-        padding: 0.5rem;
-      }
-  
-      .billing-form {
-        padding: 1rem;
-      }
-  
-      .expiry-security {
-        flex-wrap: wrap;
-      }
-  
-      .expiry-security input {
-        width: calc(33.33% - 0.35rem);
-      }
+  }
+
+  @media (max-width: 600px) {
+    .billing-page {
+      padding: 0.5rem;
     }
-  </style>
+
+    .billing-form {
+      padding: 1rem;
+    }
+
+    .expiry-security {
+      flex-wrap: wrap;
+    }
+
+    .expiry-security input {
+      width: calc(33.33% - 0.35rem);
+    }
+  }
+
+  input:invalid {
+    border-color: red;
+  }
+
+  input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: red;
+  }
+
+  input:valid:not(:placeholder-shown) {
+    border-color: green;
+  }
+</style>
