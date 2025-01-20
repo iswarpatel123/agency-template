@@ -7,17 +7,17 @@ const faqs = [
     {
         question: "What sets you apart from others?",
         answer:
-            "Grounded Footwear's barefoot shoes distinguish themselves from traditional footwear in several key ways:" +
+            "FootBound Footwear's barefoot shoes distinguish themselves from traditional footwear in several key ways:" +
             "Toe Space: They feature a wider toe box, enabling toes to spread and grip the ground, akin to being barefoot."
-            + "Sole: Grounded Footwear's barefoot shoes boast thin and flexible soles, allowing natural foot movement and providing enhanced sensory feedback from the ground."
-            + "Arch Support: In contrast to many modern shoes, which offer significant arch support, Grounded Footwear's barefoot shoes allow feet to support themselves, gradually strengthening foot muscles." +
-            "Heel Drop: With a zero or minimal heel drop, Grounded Footwear's barefoot shoes promote a more natural foot posture and stride." +
-            "Materials: Crafted from breathable, lightweight materials that conform to the foot's shape, Grounded Footwear's barefoot shoes offer a second skin feel.",
+            + "Sole: FootBound Footwear's barefoot shoes boast thin and flexible soles, allowing natural foot movement and providing enhanced sensory feedback from the ground."
+            + "Arch Support: In contrast to many modern shoes, which offer significant arch support, FootBound Footwear's barefoot shoes allow feet to support themselves, gradually strengthening foot muscles." +
+            "Heel Drop: With a zero or minimal heel drop, FootBound Footwear's barefoot shoes promote a more natural foot posture and stride." +
+            "Materials: Crafted from breathable, lightweight materials that conform to the foot's shape, FootBound Footwear's barefoot shoes offer a second skin feel.",
     },
     {
         question: "Should I wear socks with these shoes?",
         answer:
-            "our unique barefoot shoe design prioritizes a spacious single toe box, allowing your feet to move naturally without the confinement of separate toe compartments. Whether you prefer wearing socks or not is entirely up to you. Some individuals prefer the barefoot sensation, relishing the direct contact and natural feel against the shoe's interior. Others opt for socks for moisture control, decreased friction, or added comfort. Whatever your preference, our shoes are crafted to accommodate your choice, ensuring your feet enjoy the freedom they deserve.",
+            "Our unique barefoot shoe design prioritizes a spacious single toe box, allowing your feet to move naturally without the confinement of separate toe compartments. Whether you prefer wearing socks or not is entirely up to you. Some individuals prefer the barefoot sensation, relishing the direct contact and natural feel against the shoe's interior. Others opt for socks for moisture control, decreased friction, or added comfort. Whatever your preference, our shoes are crafted to accommodate your choice, ensuring your feet enjoy the freedom they deserve.",
     },
     {
         question:

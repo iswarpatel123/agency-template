@@ -68,11 +68,11 @@ const OrderSummary = () => {
             <div class="item">
               <img
                 src={products[0].colors.find((c) => c.name === item.color)?.image || ''}
-                alt="Grounded X1"
+                alt="FootBound X1"
                 class="shoe-image"
               />
               <div class="item-details">
-                <h4>Grounded X1</h4>
+                <h4>FootBound X1</h4>
                 <p>Color: {item.color}</p>
                 <p>Size: MEN {item.size} / WOMEN {Number(item.size) + 1.5}</p>
               </div>

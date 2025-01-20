@@ -8,7 +8,7 @@ const features = {
         },
         {
             title: "The Arch Support You Need",
-            description: "Grounded Footwear is ergonomically designed with arch support to align your foot and body. Feel discomfort fade from toes to heels, freeing your knees, hips, and lower back. Walk taller with timeless comfort.",
+            description: "FootBound Footwear is ergonomically designed with arch support to align your foot and body. Feel discomfort fade from toes to heels, freeing your knees, hips, and lower back. Walk taller with timeless comfort.",
             icon: "/assets/features/foot_icon.svg"
         },
         {
@@ -18,7 +18,7 @@ const features = {
         },
         {
             title: "Boost Your Circulation",
-            description: "Feel the difference as Grounded Footwear boosts circulation, refreshing your feet and legs, and revitalizing your entire stride. It's not just comfort; it's a refreshing boost for your body.",
+            description: "Feel the difference as FootBound Footwear boosts circulation, refreshing your feet and legs, and revitalizing your entire stride. It's not just comfort; it's a refreshing boost for your body.",
             icon: "/assets/features/heart_icon.svg"
         }
     ],

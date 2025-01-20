@@ -15,7 +15,7 @@ export interface Product {
 export const products: Product[] = [
     {
         id: 1,
-        name: "Grounded X1",
+        name: "FootBound X1",
         colors: [
             {
                 name: "Black",

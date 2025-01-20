@@ -97,8 +97,6 @@ const ColorSizeSelector = (): JSX.Element => {
     if (paymentInfo) {
       paymentInfo.scrollIntoView({ behavior: 'smooth' });
     }
-
-    // Remove redirection logic
   };
 
   return (
@@ -117,7 +115,7 @@ const ColorSizeSelector = (): JSX.Element => {
         {Array.from({ length: selectedColors().length }).map((_, index) => (
           <div class="selection">
             <div class="colors">
-              <h3> {index + 1}. Select Color: </h3>
+              <h3> {index + 1}. Select Color </h3>
               <div class="color-options">
                 {products[0].colors.map((color) => (
                   <button
