@@ -20,7 +20,7 @@ const testimonials = [
         text: "After years of foot pain, I was skeptical, but these shoes exceeded all my expectations. The zero-drop design has improved my posture, and the comfort is unmatched. It's like walking on clouds while staying connected to the ground!",
         name: "Oscar",
         designation: "Verified Purchaser",
-        image: "/assets/testimonials/testimonial-3.jpeg",
+        image: "/assets/testimonials/testimonial-3.jpg",
         ratingImg: "/assets/shared/stars-5.svg"
     }
 ];

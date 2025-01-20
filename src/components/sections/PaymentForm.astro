@@ -1,6 +1,6 @@
 ---
 import AddressForm from './billing/AddressForm.astro';
-import MoneyBack from '../shared/MoneyBack.astro'; // Importing MoneyBack component
+import MoneyBack from '../shared/MoneyBack.astro';
 ---
 
 <div class="billing-form payment-info">
@@ -12,23 +12,23 @@ import MoneyBack from '../shared/MoneyBack.astro'; // Importing MoneyBack compon
 
       <h2 class="payment-title bold-text">Payment</h2>
 
-<div class="moneyback-container mobile-only">
-  <MoneyBack />
-</div>
+      <div class="moneyback-container mobile-only">
+        <MoneyBack />
+      </div>
       <div class="payment-method">
         <label>
           <input type="radio" name="payment" checked />
           Credit Card
         </label>
         <img
-          src="https://offer.groundedfootwear.co/freedom/en/us/v1/img/cards.png"
+          src="/assets/checkout/cards.webp"
           alt="Credit Cards"
         />
       </div>
       <div class="card-number-container">
         <input type="text" placeholder="Card number" required />
         <img
-          src="https://offer.groundedfootwear.co/freedom/en/us/v7/images/card-lock.png"
+          src="/assets/checkout/card-lock.webp"
           alt="Lock"
           class="lock-icon"
         />
@@ -163,11 +163,11 @@ import MoneyBack from '../shared/MoneyBack.astro'; // Importing MoneyBack compon
       cursor: pointer;
       width: 100%;
       font-weight: 600;
-height: 48px;
-line-height: 48px; /* Align text vertically */
-display: flex; /* Use flexbox for centering */
-align-items: center; /* Center vertically */
-justify-content: center; /* Center horizontally */
+      height: 48px;
+      line-height: 48px; /* Align text vertically */
+      display: flex; /* Use flexbox for centering */
+      align-items: center; /* Center vertically */
+      justify-content: center; /* Center horizontally */
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
   
@@ -265,7 +265,6 @@ justify-content: center; /* Center horizontally */
       }
       .moneyback-container.mobile-only {
         display: block;
-        margin-bottom: 1rem;
       }
     }
 
