@@ -3,3 +3,18 @@
 html, body {
   font-family: 'Poppins', sans-serif;
 }
+
+.city-state-zip {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .city-state-zip {
+    flex-wrap: wrap;
+  }
+
+  .city-state-zip input {
+    width: calc(33.33% - 0.35rem);
+  }
+}

@@ -22,7 +22,7 @@ import MoneyBack from "../shared/MoneyBack.astro";
       <img src="/assets/checkout/cards.webp" alt="Credit Cards" />
     </div>
     <div class="card-number-container">
-      <input type="text" placeholder="Card number" required />
+      <input type="text" id="card-number" placeholder="Card number" required />
       <img src="/assets/checkout/card-lock.webp" alt="Lock" class="lock-icon" />
       <div class="speech-bubble" style="display: none;">
         All transactions are secure and encrypted.
@@ -107,12 +107,37 @@ import MoneyBack from "../shared/MoneyBack.astro";
         }
         return sum % 10 === 0;
       },
-      errorMessage: "Please enter a valid credit card number (13-19 digits)",
+      errorMessage: "Please enter a valid credit card number",
+    },
+    firstName: {
+      validator: (value: string) => /^[a-zA-Z\s'-]{1,50}$/.test(value.trim()),
+      errorMessage: "Please enter a valid first name",
+    },
+    lastName: {
+      validator: (value: string) => /^[a-zA-Z\s'-]{1,50}$/.test(value.trim()),
+      errorMessage: "Please enter a valid last name",
+    },
+    address: {
+      validator: (value: string) =>
+        /^[a-zA-Z0-9\s.,#\-\/]{1,100}$/.test(value.trim()),
+      errorMessage: "Please enter a valid address",
+    },
+    city: {
+      validator: (value: string) => /^[a-zA-Z\s\-]{1,50}$/.test(value.trim()),
+      errorMessage: "Please enter a valid city",
+    },
+    zipCode: {
+      validator: (value: string) => /^\d{5}(-\d{4})?$/.test(value.trim()),
+      errorMessage: "Please enter a valid ZIP code",
     },
   };
 
-  function validateField(input: HTMLInputElement, validationType: string) {
+  function validateField(input: HTMLInputElement) {
     const value = input.value;
+    const validationType = input.dataset.validationType;
+
+    if (!validationType) return;
+
     const rule = validationRules[validationType];
 
     if (!rule) return;
@@ -133,84 +158,102 @@ import MoneyBack from "../shared/MoneyBack.astro";
     // input.reportValidity();
   }
 
+  // Get all inputs with data-validation-type attribute
+  const validatedInputs = document.querySelectorAll(
+    "input[data-validation-type]",
+  ) as NodeListOf<HTMLInputElement>;
+
+  // Validate each input on form submit
+  validatedInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      validateField(input);
+    });
+  });
+
   // Setup email validation on form submit
   const emailInput = document.querySelector(
     'input[type="email"]',
   ) as HTMLInputElement;
 
-  // Setup credit card validation with formatting on form submit
-  const cardNumberInput = document.querySelector(
-    ".card-number-container input",
-  ) as HTMLInputElement;
+  // Add validation for other fields
+  const addressInputs = document.querySelectorAll(
+    'input[data-validation-type="address"]',
+  ) as NodeListOf<HTMLInputElement>;
+  const cityInputs = document.querySelectorAll(
+    'input[data-validation-type="city"]',
+  ) as NodeListOf<HTMLInputElement>;
+  const zipCodeInputs = document.querySelectorAll(
+    'input[data-validation-type="zipCode"]',
+  ) as NodeListOf<HTMLInputElement>;
 
-  // Function to format card number
-  function formatCardNumber(input: HTMLInputElement) {
-    let value = input.value.replace(/\s/g, "");
-    let formattedValue = "";
-    for (let i = 0; i < value.length; i++) {
-      if (i > 0 && i % 4 === 0) {
-        formattedValue += " ";
-      }
-      formattedValue += value[i];
-    }
-    input.value = formattedValue;
-  }
+  addressInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      validateField(input);
+    });
+  });
 
-  // Format card number on input
-  cardNumberInput?.addEventListener("input", () => {
-    formatCardNumber(cardNumberInput);
+  cityInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      validateField(input);
+    });
+  });
+
+  zipCodeInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      validateField(input);
+    });
   });
 
   // Validate form on submit
   const form = document.querySelector("form") as HTMLFormElement;
+  const cardNumberInput = document.getElementById(
+    "card-number",
+  ) as HTMLInputElement;
   form?.addEventListener("submit", (event) => {
-    // Validate email
-    validateField(emailInput, "email");
+    // Validate each input
+    validatedInputs.forEach((input) => {
+      validateField(input);
+    });
 
-    // Validate card number
-    validateField(cardNumberInput, "cardNumber");
+    // Function to format card number
+    function formatCardNumber(input: HTMLInputElement) {
+      let value = input.value.replace(/\s/g, "");
+      let formattedValue = "";
+      for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+          formattedValue += " ";
+        }
+        formattedValue += value[i];
+      }
+      input.value = formattedValue;
+    }
+
+    // Format card number on input
+    cardNumberInput?.addEventListener("input", () => {
+      formatCardNumber(cardNumberInput);
+    });
+
+    // Validate email (if not already validated)
+    if (emailInput) {
+      validateField(emailInput);
+    }
 
     // Format card number
     formatCardNumber(cardNumberInput);
 
-    const emailValue = emailInput?.value || "";
-    const cardNumber = cardNumberInput?.value.replace(/\s/g, "") || "";
-
+    const emailValue = emailInput?.value.trim() || "";
     let isFormValid = true;
 
-    if (!validationRules.email.validator(emailValue)) {
-      event.preventDefault();
-      emailInput?.setCustomValidity(validationRules.email.errorMessage);
-      emailInput?.reportValidity();
-      isFormValid = false;
-    }
-
-    if (!validationRules.cardNumber.validator(cardNumber)) {
-      event.preventDefault();
-      cardNumberInput?.setCustomValidity(
-        validationRules.cardNumber.errorMessage,
-      );
-      cardNumberInput?.reportValidity();
-      isFormValid = false;
-    }
-
-    let isCardValid = true;
-
-    if (!validationRules.email.validator(emailValue)) {
-      event.preventDefault();
-      emailInput?.setCustomValidity(validationRules.email.errorMessage);
-      emailInput?.reportValidity();
-      isCardValid = false;
-    }
-
-    if (!validationRules.cardNumber.validator(cardNumber)) {
-      event.preventDefault();
-      cardNumberInput?.setCustomValidity(
-        validationRules.cardNumber.errorMessage,
-      );
-      cardNumberInput?.reportValidity();
-      isCardValid = false;
-    }
+    // Check validity of each input
+    validatedInputs.forEach((input) => {
+      const validationType = input.dataset.validationType;
+      if (validationType) {
+        const rule = validationRules[validationType];
+        if (rule && !rule.validator(input.value.trim())) {
+          isFormValid = false;
+        }
+      }
+    });
 
     return isFormValid;
   });
