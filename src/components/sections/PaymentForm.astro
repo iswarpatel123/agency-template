@@ -1,12 +1,20 @@
 ---
+import { getCurrentYear } from "../../utils/helpers";
 import AddressForm from "./billing/AddressForm.astro";
 import MoneyBack from "../shared/MoneyBack.astro";
 ---
 
 <div class="billing-form payment-info">
+  <div id="checkout-error" class="checkout-error hidden" role="alert"></div>
   <form>
     <h1 class="shipping-title">Shipping address</h1>
-    <input type="email" placeholder="Email address" required />
+    <input
+      type="email"
+      placeholder="Email address"
+      required
+      data-validation-type="email"
+      aria-describedby="email-error"
+    />
     <AddressForm type="shipping" />
 
     <h2 class="payment-title bold-text">Payment</h2>
@@ -22,15 +30,43 @@ import MoneyBack from "../shared/MoneyBack.astro";
       <img src="/assets/checkout/cards.webp" alt="Credit Cards" />
     </div>
     <div class="card-number-container">
-      <input type="text" id="card-number" placeholder="Card number" required />
+      <input
+        type="text"
+        id="card-number"
+        placeholder="Card number"
+        required
+        data-validation-type="cardNumber"
+      />
       <img src="/assets/checkout/card-lock.webp" alt="Lock" class="lock-icon" />
-      <div class="speech-bubble" style="display: none;">
+      <div class="speech-bubble" hidden aria-hidden="true">
         All transactions are secure and encrypted.
       </div>
     </div>
     <div class="expiry-security">
-      <input type="text" placeholder="Month" required />
-      <input type="text" placeholder="Year" required />
+      <select required>
+        <option value="" disabled selected>Month</option>
+        <option value="01">(01) January</option>
+        <option value="02">(02) February</option>
+        <option value="03">(03) March</option>
+        <option value="04">(04) April</option>
+        <option value="05">(05) May</option>
+        <option value="06">(06) June</option>
+        <option value="07">(07) July</option>
+        <option value="08">(08) August</option>
+        <option value="09">(09) September</option>
+        <option value="10">(10) October</option>
+        <option value="11">(11) November</option>
+        <option value="12">(12) December</option>
+      </select>
+      <select required>
+        <option value="" disabled selected>Year</option>
+        {
+          Array.from({ length: 19 }, (_, i) => {
+            const year = getCurrentYear() + i;
+            return <option value={year}>{year}</option>;
+          })
+        }
+      </select>
       <input type="text" placeholder="Security code" required />
     </div>
     <label class="checkbox-label">
@@ -46,11 +82,21 @@ import MoneyBack from "../shared/MoneyBack.astro";
 </div>
 
 <script>
+  import {
+    debounce,
+    validationRules as importedValidationRules,
+  } from "../../utils/formValidation";
+
+  // Form elements
+  const form = document.querySelector("form") as HTMLFormElement;
   const sameAddressCheckbox = document.getElementById(
     "same-address",
   ) as HTMLInputElement;
   const billingAddressSection = document.getElementById("billing-address");
+  const lockIcon = document.querySelector(".lock-icon") as HTMLElement;
+  const speechBubble = document.querySelector(".speech-bubble") as HTMLElement;
 
+  // Handle billing address visibility
   sameAddressCheckbox?.addEventListener("change", () => {
     billingAddressSection?.classList.toggle(
       "hidden",
@@ -58,79 +104,51 @@ import MoneyBack from "../shared/MoneyBack.astro";
     );
   });
 
-  const lockIcon = document.querySelector(".lock-icon");
-  const speechBubble = document.querySelector(".speech-bubble");
-
-  if (lockIcon instanceof HTMLElement && speechBubble instanceof HTMLElement) {
+  // Handle security info popup with improved accessibility
+  if (lockIcon && speechBubble) {
     lockIcon.addEventListener("click", (event) => {
       event.stopPropagation();
-      speechBubble.style.display =
-        speechBubble.style.display === "none" ? "block" : "none";
+      speechBubble.toggleAttribute("hidden");
+      speechBubble.setAttribute(
+        "aria-hidden",
+        speechBubble.hasAttribute("hidden").toString(),
+      );
     });
 
     document.addEventListener("click", () => {
-      speechBubble.style.display = "none";
+      if (!speechBubble.hasAttribute("hidden")) {
+        speechBubble.setAttribute("hidden", "");
+        speechBubble.setAttribute("aria-hidden", "true");
+      }
     });
   }
 
-  interface ValidationRules {
-    [key: string]: {
-      validator: (value: string) => boolean;
-      errorMessage: string;
-    };
-  }
+  // Debounced validation function
+  const debouncedValidate = debounce((input: HTMLInputElement) => {
+    const validationType = input.dataset.validationType;
+    if (!validationType || !importedValidationRules[validationType]) return;
 
-  const validationRules: ValidationRules = {
-    email: {
-      validator: (value: string) =>
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()),
-      errorMessage: "Please enter a valid email address",
-    },
-    cardNumber: {
-      validator: (value: string) => {
-        const cleanValue = value.replace(/\s/g, "");
-        // Basic length check for most credit card types (13-19 digits)
-        if (!/^\d{13,19}$/.test(cleanValue)) {
-          return false;
-        }
-        // Luhn algorithm check
-        let sum = 0;
-        let shouldDouble = false;
-        for (let i = cleanValue.length - 1; i >= 0; i--) {
-          let digit = parseInt(cleanValue.charAt(i));
-          if (shouldDouble) {
-            digit *= 2;
-            if (digit > 9) digit -= 9;
-          }
-          sum += digit;
-          shouldDouble = !shouldDouble;
-        }
-        return sum % 10 === 0;
-      },
-      errorMessage: "Please enter a valid credit card number",
-    },
-    firstName: {
-      validator: (value: string) => /^[a-zA-Z\s'-]{1,50}$/.test(value.trim()),
-      errorMessage: "Please enter a valid first name",
-    },
-    lastName: {
-      validator: (value: string) => /^[a-zA-Z\s'-]{1,50}$/.test(value.trim()),
-      errorMessage: "Please enter a valid last name",
-    },
-    address: {
-      validator: (value: string) =>
-        /^[a-zA-Z0-9\s.,#\-\/]{1,100}$/.test(value.trim()),
-      errorMessage: "Please enter a valid address",
-    },
-    city: {
-      validator: (value: string) => /^[a-zA-Z\s\-]{1,50}$/.test(value.trim()),
-      errorMessage: "Please enter a valid city",
-    },
-    zipCode: {
-      validator: (value: string) => /^\d{5}(-\d{4})?$/.test(value.trim()),
-      errorMessage: "Please enter a valid ZIP code",
-    },
-  };
+    const value = input.value.trim();
+    const rule = importedValidationRules[validationType];
+    const isValid = value.length === 0 || rule.validator(value);
+
+    input.setAttribute("aria-invalid", (!isValid).toString());
+    const errorId = `${input.id}-error`;
+    const errorElement = document.getElementById(errorId);
+
+    if (errorElement) {
+      errorElement.textContent = isValid ? "" : rule.errorMessage;
+      errorElement.hidden = isValid;
+    }
+  }, 300);
+
+  // Event delegation for form validation
+  form?.addEventListener("input", (event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.dataset.validationType) {
+      debouncedValidate(target);
+    }
+  });
 
   function validateField(input: HTMLInputElement) {
     const value = input.value;
@@ -138,15 +156,7 @@ import MoneyBack from "../shared/MoneyBack.astro";
 
     if (!validationType) return;
 
-    const rule = validationRules[validationType];
-
-    if (!rule) return;
-
-    if (value.length === 0) {
-      input.classList.remove("valid", "invalid");
-      input.setCustomValidity("");
-      return;
-    }
+    const rule = importedValidationRules[validationType];
 
     const isFieldValid = rule.validator(value);
     input.classList.toggle("valid", isFieldValid);
@@ -159,15 +169,13 @@ import MoneyBack from "../shared/MoneyBack.astro";
   }
 
   // Get all inputs with data-validation-type attribute
-  const validatedInputs = document.querySelectorAll(
-    "input[data-validation-type]",
-  ) as NodeListOf<HTMLInputElement>;
+  const validatedInputs = Array.from(
+    document.querySelectorAll("input[data-validation-type]"),
+  ) as HTMLInputElement[];
 
-  // Validate each input on form submit
+  // Add a single event listener for all inputs
   validatedInputs.forEach((input) => {
-    input.addEventListener("input", () => {
-      validateField(input);
-    });
+    input.addEventListener("input", () => validateField(input));
   });
 
   // Setup email validation on form submit
@@ -205,58 +213,51 @@ import MoneyBack from "../shared/MoneyBack.astro";
   });
 
   // Validate form on submit
-  const form = document.querySelector("form") as HTMLFormElement;
   const cardNumberInput = document.getElementById(
     "card-number",
-  ) as HTMLInputElement;
-  form?.addEventListener("submit", (event) => {
-    // Validate each input
-    validatedInputs.forEach((input) => {
-      validateField(input);
-    });
+  ) as HTMLInputElement | null;
+  // Function to format card number
+  function formatCardNumber(input: HTMLInputElement) {
+    const value = input.value.replace(/\s/g, "");
+    input.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+  }
 
-    // Function to format card number
-    function formatCardNumber(input: HTMLInputElement) {
-      let value = input.value.replace(/\s/g, "");
-      let formattedValue = "";
-      for (let i = 0; i < value.length; i++) {
-        if (i > 0 && i % 4 === 0) {
-          formattedValue += " ";
-        }
-        formattedValue += value[i];
-      }
-      input.value = formattedValue;
-    }
-
-    // Format card number on input
-    cardNumberInput?.addEventListener("input", () => {
-      formatCardNumber(cardNumberInput);
-    });
-
-    // Validate email (if not already validated)
-    if (emailInput) {
-      validateField(emailInput);
-    }
-
-    // Format card number
+  // Format card number on input
+  cardNumberInput?.addEventListener("input", () => {
     formatCardNumber(cardNumberInput);
-
-    const emailValue = emailInput?.value.trim() || "";
-    let isFormValid = true;
-
-    // Check validity of each input
-    validatedInputs.forEach((input) => {
-      const validationType = input.dataset.validationType;
-      if (validationType) {
-        const rule = validationRules[validationType];
-        if (rule && !rule.validator(input.value.trim())) {
-          isFormValid = false;
-        }
-      }
-    });
-
-    return isFormValid;
   });
+
+  function handleCheckoutError(errorMessage: string) {
+    const errorContainer = document.getElementById("checkout-error");
+    if (errorContainer) {
+      errorContainer.textContent = errorMessage;
+      errorContainer.classList.remove("hidden");
+    }
+  }
+
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault(); // Prevent form submission for validation testing
+
+      // Validate each input
+      validatedInputs.forEach((input) => validateField(input));
+
+      // Validate email (if not already validated)
+      if (emailInput) {
+        validateField(emailInput);
+      }
+
+      // Format card number before validation
+      if (cardNumberInput) {
+        formatCardNumber(cardNumberInput);
+        validateField(cardNumberInput);
+      }
+
+      let isFormValid = validatedInputs.every((input) => input.checkValidity());
+
+      return isFormValid;
+    });
+  }
 </script>
 
 <style>
@@ -385,8 +386,15 @@ import MoneyBack from "../shared/MoneyBack.astro";
     gap: 0.5rem;
   }
 
+  .expiry-security select,
   .expiry-security input {
-    width: 33.33%;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .expiry-security {
+    display: flex;
+    gap: 0.5rem;
   }
 
   .checkbox-label {
@@ -496,4 +504,19 @@ import MoneyBack from "../shared/MoneyBack.astro";
   input:valid:not(:placeholder-shown) {
     border-color: green;
   }
+.checkout-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.checkout-error.hidden {
+  display: none;
+}
 </style>

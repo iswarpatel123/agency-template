@@ -1,21 +1,21 @@
 ---
+import { getCurrentYear } from "../utils/helpers";
 import Container from "../components/shared/Container.astro";
 ---
 
 <div class="relative mt-16">
-    <div class="py-4 relative">
-      <Container>
-        <div class="flex flex-col items-center gap-2 md:text-lg text-heading-3">
-          <div class="flex gap-4">
-            <a href="/returns" class="hover:underline">Returns & Exchanges</a>
-            <a href="/privacy" class="hover:underline">Privacy Policy</a>
-            <a href="/contact" class="hover:underline">Contact</a>
-          </div>
-          <div class="text-center text-sm mt-2">
-            2025 Copyright ©. All Rights Reserved.
-          </div>
+  <div class="py-4 relative">
+    <Container>
+      <div class="flex flex-col items-center gap-2 md:text-lg text-heading-3">
+        <div class="flex gap-4">
+          <a href="/returns" class="hover:underline">Returns & Exchanges</a>
+          <a href="/privacy" class="hover:underline">Privacy Policy</a>
+          <a href="/contact" class="hover:underline">Contact</a>
         </div>
-      </Container>
-    </div>
-  </footer>
+        <div class="text-center text-sm mt-2">
+          {getCurrentYear()} Copyright ©. All Rights Reserved.
+        </div>
+      </div>
+    </Container>
+  </div>
 </div>

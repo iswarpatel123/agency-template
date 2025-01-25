@@ -77,9 +77,7 @@ const ColorSizeSelector = (): JSX.Element => {
   });
 
   const handleNext = () => {
-    console.log("Next button clicked"); // Debugging line
     if (selectedColors().includes('') || selectedSizes().includes('')) {
-      console.log("Error: Colors or sizes not selected"); // Debugging line
       setError(true);
       return;
     }
