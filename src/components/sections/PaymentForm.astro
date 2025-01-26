@@ -6,7 +6,7 @@ import MoneyBack from "../shared/MoneyBack.astro";
 
 <div class="billing-form payment-info">
   <div id="checkout-error" class="checkout-error hidden" role="alert"></div>
-  <form>
+  <form id="payment-form" class="payment-form">
     <h1 class="shipping-title">Shipping address</h1>
     <input
       type="email"
@@ -77,72 +77,46 @@ import MoneyBack from "../shared/MoneyBack.astro";
       <h2>Billing Address</h2>
       <AddressForm type="billing" />
     </div>
-    <button type="submit">Complete Your Secure Purchase</button>
+    <button type="submit" class="submit-button"
+      >Complete Your Secure Purchase</button
+    >
   </form>
 </div>
 
 <script>
   import {
-    debounce,
-    validationRules as importedValidationRules,
-  } from "../../utils/formValidation";
+    handleBillingAddressVisibility,
+    handleSecurityInfoPopup,
+    debouncedValidate,
+    validateField,
+    formatCardNumber,
+    showError,
+    handleFormSubmission,
+  } from "../../utils/form-helpers";
 
   // Form elements
   const form = document.querySelector("form") as HTMLFormElement;
   const sameAddressCheckbox = document.getElementById(
     "same-address",
   ) as HTMLInputElement;
-  const billingAddressSection = document.getElementById("billing-address");
+  const billingAddressSection = document.getElementById(
+    "billing-address",
+  ) as HTMLElement;
   const lockIcon = document.querySelector(".lock-icon") as HTMLElement;
   const speechBubble = document.querySelector(".speech-bubble") as HTMLElement;
+  const cardNumberInput = document.getElementById(
+    "card-number",
+  ) as HTMLInputElement | null;
+  const emailInput = document.querySelector(
+    'input[type="email"]',
+  ) as HTMLInputElement;
+  const validatedInputs = Array.from(
+    document.querySelectorAll("input[data-validation-type]"),
+  ) as HTMLInputElement[];
 
-  // Handle billing address visibility
-  sameAddressCheckbox?.addEventListener("change", () => {
-    billingAddressSection?.classList.toggle(
-      "hidden",
-      sameAddressCheckbox.checked,
-    );
-  });
+  handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
+  handleSecurityInfoPopup(lockIcon, speechBubble);
 
-  // Handle security info popup with improved accessibility
-  if (lockIcon && speechBubble) {
-    lockIcon.addEventListener("click", (event) => {
-      event.stopPropagation();
-      speechBubble.toggleAttribute("hidden");
-      speechBubble.setAttribute(
-        "aria-hidden",
-        speechBubble.hasAttribute("hidden").toString(),
-      );
-    });
-
-    document.addEventListener("click", () => {
-      if (!speechBubble.hasAttribute("hidden")) {
-        speechBubble.setAttribute("hidden", "");
-        speechBubble.setAttribute("aria-hidden", "true");
-      }
-    });
-  }
-
-  // Debounced validation function
-  const debouncedValidate = debounce((input: HTMLInputElement) => {
-    const validationType = input.dataset.validationType;
-    if (!validationType || !importedValidationRules[validationType]) return;
-
-    const value = input.value.trim();
-    const rule = importedValidationRules[validationType];
-    const isValid = value.length === 0 || rule.validator(value);
-
-    input.setAttribute("aria-invalid", (!isValid).toString());
-    const errorId = `${input.id}-error`;
-    const errorElement = document.getElementById(errorId);
-
-    if (errorElement) {
-      errorElement.textContent = isValid ? "" : rule.errorMessage;
-      errorElement.hidden = isValid;
-    }
-  }, 300);
-
-  // Event delegation for form validation
   form?.addEventListener("input", (event) => {
     const target = event.target as HTMLInputElement;
     if (target.dataset.validationType) {
@@ -150,373 +124,36 @@ import MoneyBack from "../shared/MoneyBack.astro";
     }
   });
 
-  function validateField(input: HTMLInputElement) {
-    const value = input.value;
-    const validationType = input.dataset.validationType;
-
-    if (!validationType) return;
-
-    const rule = importedValidationRules[validationType];
-
-    const isFieldValid = rule.validator(value);
-    input.classList.toggle("valid", isFieldValid);
-    input.classList.toggle("invalid", !isFieldValid);
-
-    // Set custom validity message for HTML5 validation
-    input.setCustomValidity(isFieldValid ? "" : rule.errorMessage);
-    // Don't show the error message immediately
-    // input.reportValidity();
-  }
-
-  // Get all inputs with data-validation-type attribute
-  const validatedInputs = Array.from(
-    document.querySelectorAll("input[data-validation-type]"),
-  ) as HTMLInputElement[];
-
-  // Add a single event listener for all inputs
   validatedInputs.forEach((input) => {
     input.addEventListener("input", () => validateField(input));
   });
 
-  // Setup email validation on form submit
-  const emailInput = document.querySelector(
-    'input[type="email"]',
-  ) as HTMLInputElement;
-
-  // Add validation for other fields
-  const addressInputs = document.querySelectorAll(
-    'input[data-validation-type="address"]',
-  ) as NodeListOf<HTMLInputElement>;
-  const cityInputs = document.querySelectorAll(
-    'input[data-validation-type="city"]',
-  ) as NodeListOf<HTMLInputElement>;
-  const zipCodeInputs = document.querySelectorAll(
-    'input[data-validation-type="zipCode"]',
-  ) as NodeListOf<HTMLInputElement>;
-
-  addressInputs.forEach((input) => {
-    input.addEventListener("input", () => {
-      validateField(input);
-    });
-  });
-
-  cityInputs.forEach((input) => {
-    input.addEventListener("input", () => {
-      validateField(input);
-    });
-  });
-
-  zipCodeInputs.forEach((input) => {
-    input.addEventListener("input", () => {
-      validateField(input);
-    });
-  });
-
-  // Validate form on submit
-  const cardNumberInput = document.getElementById(
-    "card-number",
-  ) as HTMLInputElement | null;
-  // Function to format card number
-  function formatCardNumber(input: HTMLInputElement) {
-    const value = input.value.replace(/\s/g, "");
-    input.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-  }
-
-  // Format card number on input
   cardNumberInput?.addEventListener("input", () => {
     formatCardNumber(cardNumberInput);
   });
 
-  function handleCheckoutError(errorMessage: string) {
-    const errorContainer = document.getElementById("checkout-error");
-    if (errorContainer) {
-      errorContainer.textContent = errorMessage;
-      errorContainer.classList.remove("hidden");
+  // Initialize form handling
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    validatedInputs.forEach((input) => validateField(input));
+
+    if (emailInput) {
+      validateField(emailInput);
     }
-  }
 
-  if (form) {
-    form.addEventListener("submit", (event) => {
-      event.preventDefault(); // Prevent form submission for validation testing
+    if (cardNumberInput) {
+      formatCardNumber(cardNumberInput);
+      validateField(cardNumberInput);
+    }
 
-      // Validate each input
-      validatedInputs.forEach((input) => validateField(input));
+    const isFormValid = validatedInputs.every((input) => input.checkValidity());
 
-      // Validate email (if not already validated)
-      if (emailInput) {
-        validateField(emailInput);
-      }
-
-      // Format card number before validation
-      if (cardNumberInput) {
-        formatCardNumber(cardNumberInput);
-        validateField(cardNumberInput);
-      }
-
-      let isFormValid = validatedInputs.every((input) => input.checkValidity());
-
-      return isFormValid;
-    });
-  }
+    if (isFormValid) {
+      handleFormSubmission(event);
+    }
+  });
 </script>
-
 <style>
-  .billing-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  .order-summary-mobile {
-    display: none;
-  }
-
-  .order-summary-wrapper {
-    display: block;
-  }
-
-  .billing-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-  }
-
-  .billing-left {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .billing-right {
-    flex: 0 0 400px;
-  }
-
-  .billing-form {
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-  }
-
-  .payment-title {
-    text-align: left;
-    margin: 1rem 0;
-  }
-
-  input[type="text"],
-  input[type="email"],
-  select {
-    padding: 0.75rem;
-    border: 1px solid #333;
-    border-radius: 4px;
-    background: #f9f9f9;
-    color: #000;
-    font-weight: 600;
-    width: 100%;
-  }
-
-  .shipping-title,
-  .bold-text {
-    font-weight: bold;
-  }
-
-  button[type="submit"] {
-    background: #000;
-    color: #fff;
-    padding: 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-    font-weight: 600;
-    height: 48px;
-    line-height: 48px; /* Align text vertically */
-    display: flex; /* Use flexbox for centering */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-
-  h1,
-  h2 {
-    color: #000;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    text-align: left;
-  }
-
-  .payment-method {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border: 1px solid #333;
-    border-radius: 4px;
-    background: #f9f9f9;
-  }
-
-  .payment-method img {
-    height: 24px;
-  }
-
-  .payment-method label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #000;
-  }
-
-  .expiry-security {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .expiry-security select,
-  .expiry-security input {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .expiry-security {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #000;
-  }
-
-  .billing-address {
-    padding-top: 1rem;
-    margin-top: 1rem;
-  }
-
-  .lock-icon {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-  }
-
-  .card-number-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .speech-bubble {
-    position: absolute;
-    right: 3rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #000;
-    color: #fff;
-    padding: 0.5rem;
-    border-radius: 4px;
-    white-space: nowrap;
-  }
-
-  .speech-bubble::after {
-    content: "";
-    position: absolute;
-    right: -8px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: 8px solid transparent;
-  }
-
-  input.valid,
-  input[type="email"].valid {
-    border: 2px solid green;
-  }
-
-  input.invalid,
-  input[type="email"].invalid {
-    border: 2px solid red;
-  }
-
-  @media (max-width: 768px) {
-    .order-summary-mobile {
-      display: block;
-    }
-    .moneyback-container.mobile-only {
-      display: block;
-    }
-  }
-
-  @media (min-width: 769px) {
-    .moneyback-container.mobile-only {
-      display: none;
-    }
-
-    .order-summary-wrapper {
-      display: none;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .billing-page {
-      padding: 0.5rem;
-    }
-
-    .billing-form {
-      padding: 1rem;
-    }
-
-    .expiry-security {
-      flex-wrap: wrap;
-    }
-
-    .expiry-security input {
-      width: calc(33.33% - 0.35rem);
-    }
-  }
-
-  input:invalid {
-    border-color: red;
-  }
-
-  input:invalid:not(:focus):not(:placeholder-shown) {
-    border-color: red;
-  }
-
-  input:valid:not(:placeholder-shown) {
-    border-color: green;
-  }
-.checkout-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.checkout-error.hidden {
-  display: none;
-}
+  @import "/style/PaymentForm.css";
 </style>
