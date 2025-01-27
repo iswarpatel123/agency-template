@@ -114,6 +114,14 @@ import MoneyBack from "../shared/MoneyBack.astro";
     document.querySelectorAll("input[data-validation-type]"),
   ) as HTMLInputElement[];
 
+  const phoneInputs = Array.from(
+    document.querySelectorAll("input[data-validation-type='phoneNumber']"),
+  ) as HTMLInputElement[];
+
+  phoneInputs.forEach((input) => {
+    input.addEventListener("input", () => validateField(input));
+  });
+
   handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
   handleSecurityInfoPopup(lockIcon, speechBubble);
 

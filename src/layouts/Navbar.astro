@@ -27,14 +27,21 @@ const navItems = [
 ];
 ---
 
-<header id="navbar" class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200 transition-transform duration-300 h-20 lg:h-24">
+<header
+  id="navbar"
+  class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200 transition-transform duration-300 h-20 lg:h-24"
+>
   <Container>
     <nav class="w-full flex justify-between gap-6 relative overflow-visible">
       <!-- logo -->
       <div class="min-w-max inline-flex relative">
         <a href="/" class="relative flex items-center gap-3">
           <div class="logo-container">
-            <img src="/assets/navbar/websiteLogo.webp" alt="Website Logo" class="logo-image" />
+            <img
+              src="/assets/navbar/logo.webp"
+              alt="Website Logo"
+              class="logo-image"
+            />
           </div>
         </a>
       </div>
@@ -60,7 +67,8 @@ const navItems = [
         </ul>
 
         <div
-          class="lg:min-w-max flex items-center sm:w-max w-full pb-6  lg:pt-1 border-b border-box-bg lg:border-0 px-6 lg:px-0">
+          class="lg:min-w-max flex items-center sm:w-max w-full pb-6 lg:pt-1 border-b border-box-bg lg:border-0 px-6 lg:px-0"
+        >
           <CtaButton className="flex justify-center w-full sm:w-max">
             Claim 60% Off
           </CtaButton>
@@ -98,9 +106,7 @@ const navItems = [
   <div
     class="lg:min-w-max flex items-center sm:w-max w-full pb-6 lg:pb-0 border-b border-box-bg lg:border-0 px-6 lg:px-0"
   >
-    <CtaButton
-      className="flex justify-center w-full sm:w-max"
-    >
+    <CtaButton className="flex justify-center w-full sm:w-max">
       Order Now
     </CtaButton>
   </div>
@@ -133,5 +139,4 @@ const navItems = [
       height: 95px; /* Height for desktop */
     }
   }
-</style>
 </style>

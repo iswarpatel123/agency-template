@@ -1,4 +1,3 @@
-// Debounce utility
 export const debounce = (fn: Function, delay: number) => {
   let timeoutId: ReturnType<typeof setTimeout>;
   return function (this: any, ...args: any[]) {
@@ -44,6 +43,14 @@ export const validationRules: Record<string, ValidationRule> = {
   zipCode: {
     validator: (value: string) => /^\d{5}(-\d{4})?$/.test(value.trim()),
     errorMessage: "Please enter a valid ZIP code",
+  },
+  phoneNumber: {
+    validator: (value: string) => {
+      const cleanValue = value.replace(/[\s\(\)\-\+]/g, '');
+      // Allow optional +1 prefix, followed by exactly 10 digits
+      return /^1?\d{10}$/.test(cleanValue);
+    },
+    errorMessage: "Please enter a valid phone number",
   },
 };
 
