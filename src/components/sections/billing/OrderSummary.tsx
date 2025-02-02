@@ -1,10 +1,11 @@
 /** @jsxImportSource solid-js */
-import { createEffect, createSignal, onMount, onCleanup } from 'solid-js';
+import { createSignal, onMount, onCleanup } from 'solid-js';
 import { products } from '../../../utils/data/products';
 import { prices } from '../../../utils/data/prices';
+import { formatPrice } from '../../../utils/general';
 
 const OrderSummary = () => {
-  const [localQuantity, setLocalQuantity] = createSignal<number>(0);
+  const [localQuantity, setLocalQuantity] = createSignal<number>(1);
   const [localSelections, setLocalSelections] = createSignal<
     { color: string; size: string }[]
   >([]);
@@ -28,8 +29,10 @@ const OrderSummary = () => {
       setLocalQuantity(quantity);
 
       const priceInfo = prices[quantity] || prices[1];
-      setTotalDiscountedPrice(quantity * priceInfo.pricePerPair);
-      setTotalOriginalPrice(quantity * priceInfo.originalPrice);
+      setTotalDiscountedPrice(
+        Number((quantity * priceInfo.pricePerPair).toFixed(2)),
+      );
+      setTotalOriginalPrice(Number((quantity * priceInfo.originalPrice).toFixed(2)));
       setSavePercentage(priceInfo.savePercentage);
     }
 
@@ -51,8 +54,6 @@ const OrderSummary = () => {
     onCleanup(() => window.removeEventListener('resize', handleResize));
   });
 
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
-
   const toggleSummary = () => setIsExpanded(!isExpanded());
 
   return (
@@ -67,7 +68,9 @@ const OrderSummary = () => {
           {localSelections().map((item) => (
             <div class="item">
               <img
-                src={products[0].colors.find((c) => c.name === item.color)?.image || ''}
+                src={
+                  products[0].colors.find((c) => c.name === item.color)?.image || ''
+                }
                 alt="FootBound X1"
                 class="shoe-image"
               />
@@ -92,7 +95,9 @@ const OrderSummary = () => {
             <div class="savings">
               <span>Today you saved</span>
               <span class="discount">
-                Discount: {formatPrice(totalOriginalPrice() - totalDiscountedPrice())}
+                Discount:{' '}
+                {formatPrice(totalOriginalPrice() - totalDiscountedPrice())}
+                {`(${savePercentage()}%)`}
               </span>
             </div>
             <div class="grand-total">
@@ -208,7 +213,8 @@ const OrderSummary = () => {
           padding: 1rem;
           cursor: pointer;
           font-size: 0.875rem;
-        }
+        }.close-btn:hover,
+        .expand-btn:hover {
 
         .close-btn:hover, .expand-btn:hover {
           background: #f3f4f6;

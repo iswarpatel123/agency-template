@@ -1,18 +1,17 @@
-import { debounce, validationRules } from "./formValidation";
-import {
-  getSelectedItems,
-  getAddressData,
-  calculateTotalAmount,
-  createCheckoutSession,
-} from "./checkout-helpers";
-import type { CheckoutError } from "../types/checkout";
+import { debounce } from "../general"; // Corrected import path
+import { validationRules } from "../validation/validationRules";
+import type {
+  CheckoutPayload,
+  ShoeSelection,
+} from "../../types/checkout";
+import { getSelectedItems, getAddressData, calculateTotalAmount, createCheckoutSession } from "../checkout/checkoutService";
 
 export function handleBillingAddressVisibility(
-  sameAddressCheckbox: HTMLInputElement,
-  billingAddressSection: HTMLElement,
-) {
+  sameAddressCheckbox: HTMLInputElement | null,
+  billingAddressSection: HTMLElement | null,
+): void {
   sameAddressCheckbox?.addEventListener("change", () => {
-    billingAddressSection?.classList.toggle(
+    billingAddressSection?.classList.toggle(// @ts-ignore
       "hidden",
       sameAddressCheckbox.checked,
     );
@@ -20,15 +19,15 @@ export function handleBillingAddressVisibility(
 }
 
 export function handleSecurityInfoPopup(
-  lockIcon: HTMLElement,
-  speechBubble: HTMLElement,
-) {
+  lockIcon: HTMLElement | null,
+  speechBubble: HTMLElement | null,
+): void {
   if (lockIcon && speechBubble) {
     lockIcon.addEventListener("click", (event) => {
       event.stopPropagation();
-      speechBubble.toggleAttribute("hidden");
+      speechBubble.toggleAttribute("hidden");// @ts-ignore
       speechBubble.setAttribute(
-        "aria-hidden",
+        "aria-hidden",// @ts-ignore
         speechBubble.hasAttribute("hidden").toString(),
       );
     });
@@ -36,13 +35,27 @@ export function handleSecurityInfoPopup(
     document.addEventListener("click", () => {
       if (!speechBubble.hasAttribute("hidden")) {
         speechBubble.setAttribute("hidden", "");
-        speechBubble.setAttribute("aria-hidden", "true");
+        speechBubble.setAttribute("aria-hidden", "true");// @ts-ignore
       }
     });
   }
 }
 
-export const debouncedValidate = debounce((input: HTMLInputElement) => {
+/**
+ * Debounced validation function.
+ * It will delay the validation call for the specified time in miliseconds.
+ */
+export function debouncedValidate(
+  input: HTMLInputElement,
+  delay: number = 300,
+): void {
+  const debounced = debounce((inputElement: HTMLInputElement) => {
+    validateField(inputElement);
+  }, delay);
+
+  debounced(input);
+}
+export function validateField(input: HTMLInputElement): void {
   const validationType = input.dataset.validationType;
   if (!validationType || !validationRules[validationType]) return;
 
@@ -58,32 +71,13 @@ export const debouncedValidate = debounce((input: HTMLInputElement) => {
     errorElement.textContent = isValid ? "" : rule.errorMessage;
     errorElement.hidden = isValid;
   }
-}, 300);
-
-export function validateField(input: HTMLInputElement) {
-  const value = input.value;
-  const validationType = input.dataset.validationType;
-
-  if (!validationType) return;
-
-  const rule = validationRules[validationType];
-
-  const isFieldValid = rule.validator(value);
-  input.classList.toggle("valid", isFieldValid);
-  input.classList.toggle("invalid", !isFieldValid);
-
-  // Set custom validity message for HTML5 validation
-  input.setCustomValidity(isFieldValid ? "" : rule.errorMessage);
-  // Don't show the error message immediately
-  // input.reportValidity();
 }
-
-export function formatCardNumber(input: HTMLInputElement) {
+export function formatCardNumber(input: HTMLInputElement): void {
   const value = input.value.replace(/\s/g, "");
   input.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
 }
 
-export function showError(message: string) {
+export function showError(message: string): void {
   const errorDiv = document.getElementById("checkout-error");
   if (errorDiv) {
     errorDiv.textContent = message;
@@ -94,18 +88,15 @@ export function showError(message: string) {
   }
 }
 
-export async function handleFormSubmission(event: SubmitEvent) {
-  event.preventDefault();
-
-  let checkoutInProgress = false;
-
-  if (checkoutInProgress) {
-    return;
+export async function handleFormSubmission(event: SubmitEvent): Promise<
+  | {
+    status: "success";
+    url: string;
   }
-
+  | { status: "error"; message: string }
+> {
   try {
-    checkoutInProgress = true;
-    const form = event.target as HTMLFormElement;
+    event.preventDefault();
 
     const shippingForm = document.querySelector(
       "#shipping-address-form form",
@@ -126,14 +117,14 @@ export async function handleFormSubmission(event: SubmitEvent) {
       localStorage.getItem("selectedQuantity") || "0",
       10,
     );
-    const selectedItems = getSelectedItems();
+    const selectedItems: ShoeSelection[] = getSelectedItems();
 
     if (selectedItems.length === 0 || quantity === 0) {
       showError("No items selected for purchase");
-      return;
+      return { status: "error", message: "No items selected for purchase" };
     }
 
-    const payload = {
+    const payload: CheckoutPayload = {
       items: selectedItems,
       shippingAddress: getAddressData(shippingForm),
       billingAddress: sameAddressCheckbox.checked
@@ -144,13 +135,27 @@ export async function handleFormSubmission(event: SubmitEvent) {
     };
 
     const { sessionUrl } = await createCheckoutSession(payload);
-    window.location.href = sessionUrl;
+    return { status: "success", url: sessionUrl };
   } catch (error) {
-    showError(
-      error instanceof Error ? error.message : "An unexpected error occurred",
-    );
-    console.error("Checkout error:", error);
-  } finally {
-    checkoutInProgress = false;
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred";// @ts-ignore
+    showError(errorMessage);
+    return { status: "error", message: errorMessage };
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

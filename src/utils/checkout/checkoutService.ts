@@ -1,5 +1,5 @@
-import type { ShoeSelection, AddressData, CheckoutPayload } from '../types/checkout';
-import { prices } from './data/prices';
+import type { ShoeSelection, AddressData, CheckoutPayload } from '../../types/checkout';
+import { prices } from '../data/prices';
 
 export function getSelectedItems(): ShoeSelection[] {
     const selections = localStorage.getItem('selections');

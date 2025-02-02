@@ -1,5 +1,5 @@
 ---
-import { getCurrentYear } from "../../utils/helpers";
+import { getCurrentYear } from "../../utils/general";
 import AddressForm from "./billing/AddressForm.astro";
 import MoneyBack from "../shared/MoneyBack.astro";
 ---
@@ -85,14 +85,13 @@ import MoneyBack from "../shared/MoneyBack.astro";
 
 <script>
   import {
-    handleBillingAddressVisibility,
-    handleSecurityInfoPopup,
     debouncedValidate,
     validateField,
     formatCardNumber,
-    showError,
     handleFormSubmission,
-  } from "../../utils/form-helpers";
+  } from "../../utils/form/formUtils";
+
+    import { handleBillingAddressVisibility, handleSecurityInfoPopup } from "../../utils/form/formUtils";
 
   // Form elements
   const form = document.querySelector("form") as HTMLFormElement;
