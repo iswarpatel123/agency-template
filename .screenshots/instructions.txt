@@ -1,0 +1,67 @@
+We are using Braintree for payment. Here is the servier side code. Create helpers in checkoutService to call client_token and checkout.
+Make sure to send all customer info for checkout in the format needed. Modify the existing helpers in checkoutService.ts if needed.
+Create
+getClientToken, checkout helpers with all necessary paylod
+
+export default async function ({ req, res }) {
+  if (req.path === '/client_token') {
+    try {
+      const response = await retryAsync(() => gateway.clientToken.generate({}), 3);
+      return res.json({ ok: true, clientToken: response.clientToken });
+    } catch (err) {
+      return res.json({ ok: false, message: 'Error generating client token', error: err.message }, 500);
+    }
+  }
+
+  if (req.path === '/checkout') {
+    const { name, email, phone, shippingAddress, billingAddress, orderDetails, payment_method_nonce, amount, deviceData } = req.body;
+
+    // Validation
+    if (!name || !email || !phone || !shippingAddress || !billingAddress || !orderDetails || !payment_method_nonce || !amount) {
+      return res.json({ ok: false, message: 'Missing required fields', }, 400);
+    }
+
+    try {
+      const result = await retryAsync(() => gateway.transaction.sale({
+        amount: amount,
+        paymentMethodNonce: payment_method_nonce,
+        deviceData: deviceData,
+        options: {
+          submitForSettlement: true
+        }
+      }), 3);
+
+      if (result.success) {
+        const orderId = generateOrderId();
+        const order = { name, email, phone, shippingAddress, billingAddress, orderId, orderDetails, creationTime: new Date().toISOString(), updateTime: new Date().toISOString(), status: 'Pending', transactionId: result.transaction.id };
+
+        const client = new Client();
+        client
+          .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+          .setKey(req.headers['x-appwrite-key']);
+
+        const database = new Databases(client);
+
+        try {
+          await retryAsync(() => database.createDocument(
+            process.env.APPWRITE_DATABASE_ID,
+            process.env.APPWRITE_ORDERS_COLLECTION_ID,
+            order
+          ), 3);
+          return res.json({ ok: true, orderId: orderId, transactionId: result.transaction.id });
+        } catch (dbError) {
+          // Log the successful payment but failed order creation
+          console.error('Payment successful but order creation failed:', dbError);
+          return res.json({ ok: false, message: 'Payment processed but order creation failed. Please contact support.', transactionId: result.transaction.id }, 500);
+        }
+      } else {
+        return res.json({ ok: false, message: 'Transaction failed', errors: result.errors.deepErrors() }, 400);
+      }
+    } catch (error) {
+      console.error('Transaction processing error:', error);
+      return res.json({ ok: false, error: error.message }, 500);
+    }
+  }
+
+  return res.json({ ok: false, message: 'Invalid path' }, 400);
+}

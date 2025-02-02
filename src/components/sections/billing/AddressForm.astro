@@ -8,8 +8,18 @@ const { type } = Astro.props;
 
 <div class="address-form">
   <div class="name-fields">
-    <input type="text" placeholder="First name" data-validation-type="firstName" required />
-    <input type="text" placeholder="Last name" data-validation-type="lastName" required />
+    <input
+      type="text"
+      placeholder="First name"
+      data-validation-type="firstName"
+      required
+    />
+    <input
+      type="text"
+      placeholder="Last name"
+      data-validation-type="lastName"
+      required
+    />
   </div>
   <label for={`${type}-country`}>Country/Region</label>
   <select id={`${type}-country`} name={`${type}-country`} required>
@@ -17,16 +27,27 @@ const { type } = Astro.props;
   </select>
   <input
     type="text"
-    placeholder="Address Line 1" id="address-{type}" data-validation-type="address" required
+    placeholder="Address Line 1"
+    id="address-{type}"
+    data-validation-type="address"
+    required
   />
   <input
     type="text"
-    placeholder="Address Line 2 (Optional)" id="address-{type}" data-validation-type="address"
+    placeholder="Address Line 2 (Optional)"
+    id="address-{type}"
+    data-validation-type="address"
   />
   <div class="city-state-zip">
     <input
       type="text"
-    <input type="text" placeholder="City" id="city-{type}" data-validation-type="city" required />
+      <input
+      type="text"
+      placeholder="City"
+      id="city-{type}"
+      data-validation-type="city"
+      required
+    />
     <select id={`state-${type}`} name={`state-${type}`} required>
       <option value="" disabled selected>State</option>
       <option value="AL">Alabama</option>

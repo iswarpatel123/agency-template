@@ -13,6 +13,7 @@ export interface AddressData {
     state: string;
     zipCode: string;
     country: string;
+    phone?: string;
 }
 
 export interface CheckoutPayload {

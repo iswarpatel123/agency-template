@@ -41,7 +41,90 @@ export function calculateTotalAmount(quantity: number): number {
     return quantity * priceInfo.pricePerPair;
 }
 
+export interface BraintreeResponse {
+    ok: boolean;
+    clientToken?: string;
+    message?: string;
+    error?: string;
+}
+
+export async function getClientToken(): Promise<string> {
+    const response = await fetch('/client_token', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    const data: BraintreeResponse = await response.json();
+
+    if (!data.ok || !data.clientToken) {
+        throw new Error(data.message || data.error || 'Failed to get client token');
+    }
+
+    return data.clientToken;
+}
+
+export interface BraintreeCheckoutPayload {
+    name: string;
+    email: string;
+    phone: string;
+    shippingAddress: AddressData;
+    billingAddress: AddressData;
+    orderDetails: ShoeSelection[];
+    payment_method_nonce: string;
+    amount: number;
+    deviceData?: string;
+}
+
+export interface BraintreeCheckoutResponse {
+    ok: boolean;
+    orderId?: string;
+    transactionId?: string;
+    message?: string;
+    error?: string;
+}
+
+export async function checkout(
+    payload: CheckoutPayload,
+    paymentMethodNonce: string,
+    deviceData?: string
+): Promise<{ orderId: string; transactionId: string }> {
+    const braintreePayload: BraintreeCheckoutPayload = {
+        name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
+        email: payload.email,
+        phone: payload.shippingAddress.phone || '',
+        shippingAddress: payload.shippingAddress,
+        billingAddress: payload.billingAddress || payload.shippingAddress,
+        orderDetails: payload.items,
+        payment_method_nonce: paymentMethodNonce,
+        amount: payload.totalAmount,
+        deviceData
+    };
+
+    const response = await fetch('/checkout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(braintreePayload),
+    });
+
+    const data: BraintreeCheckoutResponse = await response.json();
+
+    if (!data.ok || !data.orderId || !data.transactionId) {
+        throw new Error(data.message || data.error || 'Checkout failed');
+    }
+
+    return {
+        orderId: data.orderId,
+        transactionId: data.transactionId
+    };
+}
+
 export async function createCheckoutSession(payload: CheckoutPayload): Promise<{ sessionUrl: string }> {
+    // This function might need to be updated or removed depending on how the checkout process is integrated.
+    // For now, we'll keep it as is, assuming it's used for a different payment method.
     const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
