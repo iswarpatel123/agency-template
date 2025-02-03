@@ -10,12 +10,17 @@ client
     .setEndpoint(process.env.APPWRITE_ENDPOINT || '')
     .setProject(process.env.APPWRITE_PROJECT || '');
 
-async function executeFunction(body: string, path: string): Promise<any> {
+export enum FunctionPath {
+    CHECKOUT = '/checkout',
+    CLIENT_TOKEN = '/client_token',
+}
+
+export async function executeFunction(body: string, path: FunctionPath): Promise<any> {
     const promise = functions.createExecution(
         process.env.APPWRITE_FUNCTION_ID || '',  // functionId
         body,  // body (optional)
         false,  // async (optional)
-        path,  // path (optional)
+        path,  // path (enum value)
         ExecutionMethod.GET,  // method (optional)
         {} // headers (optional)
     );

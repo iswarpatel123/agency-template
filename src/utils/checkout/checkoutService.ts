@@ -1,5 +1,6 @@
 import type { ShoeSelection, AddressData, CheckoutPayload } from '../../types/checkout';
 import { prices } from '../data/prices';
+import { executeFunction, FunctionPath } from './appwrite';
 
 export function getSelectedItems(): ShoeSelection[] {
     const selections = localStorage.getItem('selections');
@@ -48,23 +49,6 @@ export interface BraintreeResponse {
     error?: string;
 }
 
-export async function getClientToken(): Promise<string> {
-    const response = await fetch('/client_token', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-
-    const data: BraintreeResponse = await response.json();
-
-    if (!data.ok || !data.clientToken) {
-        throw new Error(data.message || data.error || 'Failed to get client token');
-    }
-
-    return data.clientToken;
-}
-
 export interface BraintreeCheckoutPayload {
     name: string;
     email: string;
@@ -102,15 +86,10 @@ export async function checkout(
         deviceData
     };
 
-    const response = await fetch('/checkout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(braintreePayload),
-    });
-
-    const data: BraintreeCheckoutResponse = await response.json();
+    const data: BraintreeCheckoutResponse = await executeFunction(
+        JSON.stringify(braintreePayload),
+        FunctionPath.CHECKOUT
+    );
 
     if (!data.ok || !data.orderId || !data.transactionId) {
         throw new Error(data.message || data.error || 'Checkout failed');
