@@ -1,7 +1,7 @@
 ---
-import { getCurrentYear } from "../../utils/general";
 import AddressForm from "./billing/AddressForm.astro";
 import MoneyBack from "../shared/MoneyBack.astro";
+import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 ---
 
 <div class="billing-form payment-info">
@@ -10,12 +10,17 @@ import MoneyBack from "../shared/MoneyBack.astro";
     <h1 class="shipping-title">Shipping address</h1>
     <input
       type="email"
+      id="email"
       placeholder="Email address"
       required
       data-validation-type="email"
       aria-describedby="email-error"
     />
-    <AddressForm type="shipping" />
+    <div id="email-error" class="error-message" hidden></div>
+
+    <div id="shipping-address-form">
+      <AddressForm type="shipping" />
+    </div>
 
     <h2 class="payment-title bold-text">Payment</h2>
 
@@ -29,69 +34,59 @@ import MoneyBack from "../shared/MoneyBack.astro";
       </label>
       <img src="/assets/checkout/cards.webp" alt="Credit Cards" />
     </div>
-    <div class="card-number-container">
-      <input
-        type="text"
-        id="card-number"
-        placeholder="Card number"
-        required
-        data-validation-type="cardNumber"
+
+    <div class="payment-fields-container">
+      <BraintreeHostedFields
+        client:visible
+        onValidityChange={(isValid) => {
+          const submitButton = document.querySelector(
+            ".submit-button",
+          ) as HTMLButtonElement;
+          if (submitButton) {
+            submitButton.disabled = !isValid;
+          }
+        }}
+        onTokenize={(payload) => {
+          document.dispatchEvent(
+            new CustomEvent("payment-tokenized", { detail: payload }),
+          );
+        }}
       />
-      <img src="/assets/checkout/card-lock.webp" alt="Lock" class="lock-icon" />
       <div class="speech-bubble" hidden aria-hidden="true">
         All transactions are secure and encrypted.
       </div>
     </div>
-    <div class="expiry-security">
-      <select required>
-        <option value="" disabled selected>Month</option>
-        <option value="01">(01) January</option>
-        <option value="02">(02) February</option>
-        <option value="03">(03) March</option>
-        <option value="04">(04) April</option>
-        <option value="05">(05) May</option>
-        <option value="06">(06) June</option>
-        <option value="07">(07) July</option>
-        <option value="08">(08) August</option>
-        <option value="09">(09) September</option>
-        <option value="10">(10) October</option>
-        <option value="11">(11) November</option>
-        <option value="12">(12) December</option>
-      </select>
-      <select required>
-        <option value="" disabled selected>Year</option>
-        {
-          Array.from({ length: 19 }, (_, i) => {
-            const year = getCurrentYear() + i;
-            return <option value={year}>{year}</option>;
-          })
-        }
-      </select>
-      <input type="text" placeholder="Security code" required />
-    </div>
+
     <label class="checkbox-label">
       <input type="checkbox" id="same-address" checked />
       Use shipping address as billing address
     </label>
-    <div id="billing-address" class="billing-address hidden">
+
+    <div id="billing-address-form" class="billing-address hidden">
       <h2>Billing Address</h2>
       <AddressForm type="billing" />
     </div>
-    <button type="submit" class="submit-button"
-      >Complete Your Secure Purchase</button
-    >
+
+    <button type="submit" class="submit-button" disabled>
+      Complete Your Secure Purchase
+    </button>
   </form>
 </div>
 
 <script>
   import {
-    debouncedValidate,
     validateField,
-    formatCardNumber,
-    handleFormSubmission,
+    handleBillingAddressVisibility,
+    handleSecurityInfoPopup,
+    showError,
   } from "../../utils/form/formUtils";
-
-    import { handleBillingAddressVisibility, handleSecurityInfoPopup } from "../../utils/form/formUtils";
+  import {
+    getSelectedItems,
+    getAddressData,
+    calculateTotalAmount,
+    processBraintreePayment,
+  } from "../../utils/checkout/checkoutService";
+  import type { ShoeSelection } from "../../types/checkout";
 
   // Form elements
   const form = document.querySelector("form") as HTMLFormElement;
@@ -99,68 +94,103 @@ import MoneyBack from "../shared/MoneyBack.astro";
     "same-address",
   ) as HTMLInputElement;
   const billingAddressSection = document.getElementById(
-    "billing-address",
+    "billing-address-form",
   ) as HTMLElement;
   const lockIcon = document.querySelector(".lock-icon") as HTMLElement;
   const speechBubble = document.querySelector(".speech-bubble") as HTMLElement;
-  const cardNumberInput = document.getElementById(
-    "card-number",
-  ) as HTMLInputElement | null;
-  const emailInput = document.querySelector(
-    'input[type="email"]',
-  ) as HTMLInputElement;
+  const emailInput = document.getElementById("email") as HTMLInputElement;
+
+  // Initialize form functionality
+  handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
+  handleSecurityInfoPopup(lockIcon, speechBubble);
+
+  // Validate all inputs with data-validation-type
   const validatedInputs = Array.from(
     document.querySelectorAll("input[data-validation-type]"),
   ) as HTMLInputElement[];
 
-  const phoneInputs = Array.from(
-    document.querySelectorAll("input[data-validation-type='phoneNumber']"),
-  ) as HTMLInputElement[];
-
-  phoneInputs.forEach((input) => {
-    input.addEventListener("input", () => validateField(input));
-  });
-
-  handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
-  handleSecurityInfoPopup(lockIcon, speechBubble);
-
-  form?.addEventListener("input", (event) => {
-    const target = event.target as HTMLInputElement;
-    if (target.dataset.validationType) {
-      debouncedValidate(target);
-    }
-  });
-
   validatedInputs.forEach((input) => {
+    input.addEventListener("blur", () => validateField(input));
     input.addEventListener("input", () => validateField(input));
   });
 
-  cardNumberInput?.addEventListener("input", () => {
-    formatCardNumber(cardNumberInput);
-  });
-
-  // Initialize form handling
-  form?.addEventListener("submit", (event) => {
+  // Handle form submission
+  form?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    // Validate all fields first
     validatedInputs.forEach((input) => validateField(input));
-
-    if (emailInput) {
-      validateField(emailInput);
+    if (!form.checkValidity()) {
+      return;
     }
 
-    if (cardNumberInput) {
-      formatCardNumber(cardNumberInput);
-      validateField(cardNumberInput);
-    }
+    try {
+      const shippingForm = document.querySelector(
+        "#shipping-address-form form",
+      ) as HTMLFormElement;
+      const billingForm = document.querySelector(
+        "#billing-address-form form",
+      ) as HTMLFormElement;
 
-    const isFormValid = validatedInputs.every((input) => input.checkValidity());
+      if (!shippingForm || !emailInput) {
+        throw new Error("Required form elements not found");
+      }
 
-    if (isFormValid) {
-      handleFormSubmission(event);
+      const quantity = parseInt(
+        localStorage.getItem("selectedQuantity") || "0",
+        10,
+      );
+      const selectedItems: ShoeSelection[] = getSelectedItems();
+
+      if (selectedItems.length === 0 || quantity === 0) {
+        showError("No items selected for purchase");
+        return;
+      }
+
+      // Wait for hosted fields to tokenize
+      const paymentTokenized = await new Promise<{ nonce: string }>(
+        (resolve) => {
+          const handler = (e: CustomEvent) => {
+            document.removeEventListener(
+              "payment-tokenized",
+              handler as EventListener,
+            );
+            resolve(e.detail);
+          };
+          document.addEventListener(
+            "payment-tokenized",
+            handler as EventListener,
+          );
+          document.dispatchEvent(new CustomEvent("tokenize-payment"));
+        },
+      );
+
+      const payload = {
+        items: selectedItems,
+        shippingAddress: getAddressData(shippingForm),
+        billingAddress: sameAddressCheckbox.checked
+          ? null
+          : getAddressData(billingForm),
+        email: emailInput.value.trim(),
+        totalAmount: calculateTotalAmount(quantity),
+      };
+
+      const result = await processBraintreePayment(
+        payload,
+        paymentTokenized.nonce,
+      );
+
+      // Handle successful payment
+      console.log("Payment successful:", result);
+      // TODO: Redirect to success page or show success message
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      showError(errorMessage);
     }
   });
 </script>
+
 <style>
   @import "/style/PaymentForm.css";
 </style>

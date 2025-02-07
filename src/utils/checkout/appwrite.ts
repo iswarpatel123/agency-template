@@ -1,14 +1,12 @@
 import { Client, ExecutionMethod, Functions } from "appwrite";
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 const client = new Client();
 
 const functions = new Functions(client);
 
 client
-    .setEndpoint(process.env.APPWRITE_ENDPOINT || '')
-    .setProject(process.env.APPWRITE_PROJECT || '');
+    .setEndpoint(import.meta.env.APPWRITE_ENDPOINT || '')
+    .setProject(import.meta.env.APPWRITE_PROJECT || '');
 
 export enum FunctionPath {
     CHECKOUT = '/checkout',

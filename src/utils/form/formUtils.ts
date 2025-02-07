@@ -1,17 +1,12 @@
-import { debounce } from "../general"; // Corrected import path
+import { debounce } from "../general";
 import { validationRules } from "../validation/validationRules";
-import type {
-  CheckoutPayload,
-  ShoeSelection,
-} from "../../types/checkout";
-import { getSelectedItems, getAddressData, calculateTotalAmount, createCheckoutSession } from "../checkout/checkoutService";
 
 export function handleBillingAddressVisibility(
   sameAddressCheckbox: HTMLInputElement | null,
   billingAddressSection: HTMLElement | null,
 ): void {
   sameAddressCheckbox?.addEventListener("change", () => {
-    billingAddressSection?.classList.toggle(// @ts-ignore
+    billingAddressSection?.classList.toggle(
       "hidden",
       sameAddressCheckbox.checked,
     );
@@ -25,9 +20,9 @@ export function handleSecurityInfoPopup(
   if (lockIcon && speechBubble) {
     lockIcon.addEventListener("click", (event) => {
       event.stopPropagation();
-      speechBubble.toggleAttribute("hidden");// @ts-ignore
+      speechBubble.toggleAttribute("hidden");
       speechBubble.setAttribute(
-        "aria-hidden",// @ts-ignore
+        "aria-hidden",
         speechBubble.hasAttribute("hidden").toString(),
       );
     });
@@ -35,16 +30,12 @@ export function handleSecurityInfoPopup(
     document.addEventListener("click", () => {
       if (!speechBubble.hasAttribute("hidden")) {
         speechBubble.setAttribute("hidden", "");
-        speechBubble.setAttribute("aria-hidden", "true");// @ts-ignore
+        speechBubble.setAttribute("aria-hidden", "true");
       }
     });
   }
 }
 
-/**
- * Debounced validation function.
- * It will delay the validation call for the specified time in miliseconds.
- */
 export function debouncedValidate(
   input: HTMLInputElement,
   delay: number = 300,
@@ -55,6 +46,7 @@ export function debouncedValidate(
 
   debounced(input);
 }
+
 export function validateField(input: HTMLInputElement): void {
   const validationType = input.dataset.validationType;
   if (!validationType || !validationRules[validationType]) return;
@@ -71,10 +63,27 @@ export function validateField(input: HTMLInputElement): void {
     errorElement.textContent = isValid ? "" : rule.errorMessage;
     errorElement.hidden = isValid;
   }
+
+  // Update form validity state
+  updateFormValidity();
 }
-export function formatCardNumber(input: HTMLInputElement): void {
-  const value = input.value.replace(/\s/g, "");
-  input.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+
+function updateFormValidity(): void {
+  const form = document.getElementById('payment-form') as HTMLFormElement;
+  const submitButton = form?.querySelector('.submit-button') as HTMLButtonElement;
+  if (!form || !submitButton) return;
+
+  const allInputsValid = Array.from(form.querySelectorAll('input[data-validation-type]'))
+    .every((input: Element) => {
+      const htmlInput = input as HTMLInputElement;
+      return !htmlInput.getAttribute('aria-invalid') || htmlInput.getAttribute('aria-invalid') === 'false';
+    });
+
+  // Only update submit button if Braintree fields are not present
+  // (Braintree component handles its own submit button state)
+  if (!document.querySelector('.hosted-fields-wrapper')) {
+    submitButton.disabled = !allInputsValid;
+  }
 }
 
 export function showError(message: string): void {
@@ -85,62 +94,6 @@ export function showError(message: string): void {
     setTimeout(() => {
       errorDiv.classList.add("hidden");
     }, 5000);
-  }
-}
-
-export async function handleFormSubmission(event: SubmitEvent): Promise<
-  | {
-    status: "success";
-    url: string;
-  }
-  | { status: "error"; message: string }
-> {
-  try {
-    event.preventDefault();
-
-    const shippingForm = document.querySelector(
-      "#shipping-address-form form",
-    ) as HTMLFormElement;
-    const billingForm = document.querySelector(
-      "#billing-address-form form",
-    ) as HTMLFormElement;
-    const sameAddressCheckbox = document.querySelector(
-      "#same-address",
-    ) as HTMLInputElement;
-    const emailInput = document.querySelector("#email") as HTMLInputElement;
-
-    if (!shippingForm || !emailInput) {
-      throw new Error("Required form elements not found");
-    }
-
-    const quantity = parseInt(
-      localStorage.getItem("selectedQuantity") || "0",
-      10,
-    );
-    const selectedItems: ShoeSelection[] = getSelectedItems();
-
-    if (selectedItems.length === 0 || quantity === 0) {
-      showError("No items selected for purchase");
-      return { status: "error", message: "No items selected for purchase" };
-    }
-
-    const payload: CheckoutPayload = {
-      items: selectedItems,
-      shippingAddress: getAddressData(shippingForm),
-      billingAddress: sameAddressCheckbox.checked
-        ? null
-        : getAddressData(billingForm),
-      email: emailInput.value.trim(),
-      totalAmount: calculateTotalAmount(quantity),
-    };
-
-    const { sessionUrl } = await createCheckoutSession(payload);
-    return { status: "success", url: sessionUrl };
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unexpected error occurred";// @ts-ignore
-    showError(errorMessage);
-    return { status: "error", message: errorMessage };
   }
 }
 

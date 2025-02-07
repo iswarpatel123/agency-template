@@ -34,19 +34,13 @@ export function getAddressData(form: HTMLFormElement): AddressData {
         state: formData.get('state') as string,
         zipCode: formData.get('zipCode') as string,
         country: formData.get('country') as string,
+        phone: formData.get('phone') as string || undefined,
     };
 }
 
 export function calculateTotalAmount(quantity: number): number {
     const priceInfo = prices[quantity] || prices[1];
     return quantity * priceInfo.pricePerPair;
-}
-
-export interface BraintreeResponse {
-    ok: boolean;
-    clientToken?: string;
-    message?: string;
-    error?: string;
 }
 
 export interface BraintreeCheckoutPayload {
@@ -69,10 +63,9 @@ export interface BraintreeCheckoutResponse {
     error?: string;
 }
 
-export async function checkout(
+export async function processBraintreePayment(
     payload: CheckoutPayload,
-    paymentMethodNonce: string,
-    deviceData?: string
+    paymentMethodNonce: string
 ): Promise<{ orderId: string; transactionId: string }> {
     const braintreePayload: BraintreeCheckoutPayload = {
         name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
@@ -83,7 +76,6 @@ export async function checkout(
         orderDetails: payload.items,
         payment_method_nonce: paymentMethodNonce,
         amount: payload.totalAmount,
-        deviceData
     };
 
     const data: BraintreeCheckoutResponse = await executeFunction(
@@ -99,23 +91,4 @@ export async function checkout(
         orderId: data.orderId,
         transactionId: data.transactionId
     };
-}
-
-export async function createCheckoutSession(payload: CheckoutPayload): Promise<{ sessionUrl: string }> {
-    // This function might need to be updated or removed depending on how the checkout process is integrated.
-    // For now, we'll keep it as is, assuming it's used for a different payment method.
-    const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Checkout failed: ${response.statusText}`);
-    }
-
-    return response.json();
 }

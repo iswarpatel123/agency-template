@@ -6,6 +6,8 @@ interface Props {
 }
 
 const { title } = Astro.props;
+
+const BRAINTREE_TOKENIZATION_KEY = import.meta.env.BRAINTREE_TOKENIZATION_KEY;
 ---
 
 <!doctype html>
@@ -17,6 +19,9 @@ const { title } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<script define:vars={{ BRAINTREE_TOKENIZATION_KEY }}>
+			window.BRAINTREE_TOKENIZATION_KEY = BRAINTREE_TOKENIZATION_KEY;
+		</script>
 	</head>
 	<body>
 		<Banner />
