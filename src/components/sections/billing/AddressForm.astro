@@ -8,46 +8,67 @@ const { type } = Astro.props;
 
 <div class="address-form">
   <div class="name-fields">
-    <input
-      type="text"
-      placeholder="First name"
-      data-validation-type="firstName"
-      required
-    />
-    <input
-      type="text"
-      placeholder="Last name"
-      data-validation-type="lastName"
-      required
-    />
+    <div class="input-group">
+      <input
+        type="text"
+        id={`firstName-${type}`}
+        placeholder="First name"
+        data-validation-type="firstName"
+        required
+        aria-describedby={`firstName-${type}-error`}
+      />
+      <div id={`firstName-${type}-error`} class="error-message" hidden></div>
+    </div>
+    <div class="input-group">
+      <input
+        type="text"
+        id={`lastName-${type}`}
+        placeholder="Last name"
+        data-validation-type="lastName"
+        required
+        aria-describedby={`lastName-${type}-error`}
+      />
+      <div id={`lastName-${type}-error`} class="error-message" hidden></div>
+    </div>
   </div>
+
   <label for={`${type}-country`}>Country/Region</label>
   <select id={`${type}-country`} name={`${type}-country`} required>
     <option value="US" selected>United States</option>
   </select>
-  <input
-    type="text"
-    placeholder="Address Line 1"
-    id="address-{type}"
-    data-validation-type="address"
-    required
-  />
+
+  <div class="input-group">
+    <input
+      type="text"
+      id={`address1-${type}`}
+      placeholder="Address Line 1"
+      data-validation-type="address"
+      required
+      aria-describedby={`address1-${type}-error`}
+    />
+    <div id={`address1-${type}-error`} class="error-message" hidden></div>
+  </div>
+
   <input
     type="text"
     placeholder="Address Line 2 (Optional)"
-    id="address-{type}"
+    id={`address2-${type}`}
     data-validation-type="address"
   />
+
   <div class="city-state-zip">
-    <input
-      type="text"
+    <div class="input-group">
       <input
-      type="text"
-      placeholder="City"
-      id="city-{type}"
-      data-validation-type="city"
-      required
-    />
+        type="text"
+        id={`city-${type}`}
+        placeholder="City"
+        data-validation-type="city"
+        required
+        aria-describedby={`city-${type}-error`}
+      />
+      <div id={`city-${type}-error`} class="error-message" hidden></div>
+    </div>
+
     <select id={`state-${type}`} name={`state-${type}`} required>
       <option value="" disabled selected>State</option>
       <option value="AL">Alabama</option>
@@ -101,24 +122,79 @@ const { type } = Astro.props;
       <option value="WI">Wisconsin</option>
       <option value="WY">Wyoming</option>
     </select>
+
+    <div class="input-group">
+      <input
+        type="text"
+        id={`zip-${type}`}
+        placeholder="Zip Code"
+        data-validation-type="zipCode"
+        required
+        aria-describedby={`zip-${type}-error`}
+      />
+      <div id={`zip-${type}-error`} class="error-message" hidden></div>
+    </div>
+  </div>
+
+  <div class="input-group">
     <input
       type="text"
-      placeholder="Zip Code"
-      id="zip-{type}"
-      data-validation-type="zipCode"
+      id={`phone-${type}`}
+      placeholder="Phone Number"
+      data-validation-type="phoneNumber"
       required
+      aria-describedby={`phone-${type}-error`}
     />
+    <div id={`phone-${type}-error`} class="error-message" hidden></div>
   </div>
-  <input
-    type="text"
-    placeholder="Phone Number"
-    id="phone-{type}"
-    data-validation-type="phoneNumber"
-    required
-  />
 </div>
 
+<script>
+  import { validateField } from "../../../utils/form/formUtils";
+
+  // Get all form elements in this address form
+  const form = document.querySelector(".address-form");
+  const inputs = form?.querySelectorAll("input[data-validation-type]");
+
+  if (inputs) {
+    inputs.forEach((input) => {
+      if (!(input instanceof HTMLInputElement)) return;
+
+      // Validate on blur if the field has a value
+      input.addEventListener("blur", () => {
+        if (input.value.trim()) {
+          validateField(input, true);
+        }
+      });
+
+      // Clear error on input
+      input.addEventListener("input", () => {
+        const errorId = `${input.id}-error`;
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) {
+          errorElement.textContent = "";
+          errorElement.hidden = true;
+        }
+        input.setAttribute("aria-invalid", "false");
+      });
+    });
+  }
+</script>
+
 <style>
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  .error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
   .city-state-zip {
     display: flex;
     gap: 0.5rem;
@@ -148,6 +224,19 @@ const { type } = Astro.props;
     color: #000;
     font-weight: 600;
     width: 100%;
+  }
+
+  /* Remove HTML5 validation styles */
+  input:invalid:not(:placeholder-shown) {
+    border-color: inherit;
+  }
+
+  input:valid:not(:placeholder-shown) {
+    border-color: inherit;
+  }
+
+  input[aria-invalid="true"] {
+    border-color: #dc2626;
   }
 
   label {

@@ -1,4 +1,5 @@
 ---
+import { getCurrentYear } from "../../utils/general";
 import AddressForm from "./billing/AddressForm.astro";
 import MoneyBack from "../shared/MoneyBack.astro";
 import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
@@ -6,21 +7,19 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 
 <div class="billing-form payment-info">
   <div id="checkout-error" class="checkout-error hidden" role="alert"></div>
-  <form id="payment-form" class="payment-form">
+  <form id="payment-form" class="payment-form" novalidate>
     <h1 class="shipping-title">Shipping address</h1>
-    <input
-      type="email"
-      id="email"
-      placeholder="Email address"
-      required
-      data-validation-type="email"
-      aria-describedby="email-error"
-    />
-    <div id="email-error" class="error-message" hidden></div>
-
-    <div id="shipping-address-form">
-      <AddressForm type="shipping" />
+    <div class="form-field">
+      <input
+        type="email"
+        id="email"
+        placeholder="Email address"
+        required
+        data-validation-type="email"
+        aria-describedby="email-error"
+      />
     </div>
+    <AddressForm type="shipping" />
 
     <h2 class="payment-title bold-text">Payment</h2>
 
@@ -61,21 +60,20 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
       <input type="checkbox" id="same-address" checked />
       Use shipping address as billing address
     </label>
-
-    <div id="billing-address-form" class="billing-address hidden">
+    <div id="billing-address" class="billing-address hidden">
       <h2>Billing Address</h2>
       <AddressForm type="billing" />
     </div>
-
-    <button type="submit" class="submit-button" disabled>
-      Complete Your Secure Purchase
-    </button>
+    <button type="submit" class="submit-button"
+      >Complete Your Secure Purchase</button
+    >
   </form>
 </div>
 
 <script>
   import {
     validateField,
+    validateForm,
     handleBillingAddressVisibility,
     handleSecurityInfoPopup,
     showError,
@@ -104,24 +102,44 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
   handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
   handleSecurityInfoPopup(lockIcon, speechBubble);
 
-  // Validate all inputs with data-validation-type
+  // Get all validated inputs
   const validatedInputs = Array.from(
-    document.querySelectorAll("input[data-validation-type]"),
+    form.querySelectorAll("input[data-validation-type]"),
   ) as HTMLInputElement[];
 
+  // Setup event listeners for validated inputs
   validatedInputs.forEach((input) => {
-    input.addEventListener("blur", () => validateField(input));
-    input.addEventListener("input", () => validateField(input));
+    // On blur, validate only if field is not empty
+    input.addEventListener("blur", () => {
+      if (input.value.trim()) {
+        validateField(input);
+      } else {
+        // Clear any previous error state for empty fields
+        input.setCustomValidity("");
+        input.setAttribute("aria-invalid", "false");
+      }
+    });
+
+    // On input, clear error state but don't validate
+    input.addEventListener("input", () => {
+      input.setCustomValidity("");
+      input.setAttribute("aria-invalid", "false");
+    });
   });
 
   // Handle form submission
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    // Validate all fields first
-    validatedInputs.forEach((input) => validateField(input));
-    if (!form.checkValidity()) {
-      return;
+    // Validate entire form with error messages
+    let isFormValid = true;
+    validatedInputs.forEach((input) => {
+      isFormValid = validateField(input, true) && isFormValid;
+    });
+
+    if (!isFormValid) {
+      form.reportValidity(); // Trigger HTML5 validation UI
+      return; // Stop if any field is invalid
     }
 
     try {
@@ -182,7 +200,6 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 
       // Handle successful payment
       console.log("Payment successful:", result);
-      // TODO: Redirect to success page or show success message
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
@@ -193,4 +210,19 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 
 <style>
   @import "/style/PaymentForm.css";
+
+  .form-field {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  input[aria-invalid="true"] {
+    border-color: #dc2626;
+  }
 </style>

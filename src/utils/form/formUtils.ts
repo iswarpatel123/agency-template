@@ -36,36 +36,37 @@ export function handleSecurityInfoPopup(
   }
 }
 
-export function debouncedValidate(
-  input: HTMLInputElement,
-  delay: number = 300,
-): void {
-  const debounced = debounce((inputElement: HTMLInputElement) => {
-    validateField(inputElement);
-  }, delay);
-
-  debounced(input);
-}
-
-export function validateField(input: HTMLInputElement): void {
+export function validateField(input: HTMLInputElement, showError: boolean = false): boolean {
   const validationType = input.dataset.validationType;
-  if (!validationType || !validationRules[validationType]) return;
+  if (!validationType || !validationRules[validationType]) return true;
 
   const value = input.value.trim();
   const rule = validationRules[validationType];
-  const isValid = value.length === 0 || rule.validator(value);
 
-  input.setAttribute("aria-invalid", (!isValid).toString());
-  const errorId = `${input.id}-error`;
-  const errorElement = document.getElementById(errorId);
+  // Don't validate empty fields unless showError is true (form submission)
+  if (value.length === 0 && !showError) return true;
 
-  if (errorElement) {
-    errorElement.textContent = isValid ? "" : rule.errorMessage;
-    errorElement.hidden = isValid;
-  }
+    const isValid = rule.validator(value);
 
-  // Update form validity state
-  updateFormValidity();
+    if (showError) {
+        input.setAttribute("aria-invalid", (!isValid).toString());
+        input.setCustomValidity(isValid ? "" : rule.errorMessage);
+        input.reportValidity();
+    }
+
+    return isValid;
+}
+
+export function validateForm(form: HTMLFormElement): boolean {
+  const inputs = Array.from(form.querySelectorAll('input[data-validation-type]')) as HTMLInputElement[];
+  let isFormValid = true;
+
+  inputs.forEach(input => {
+    const fieldValid = validateField(input, true); // Always show errors on form submission
+    isFormValid = isFormValid && fieldValid;
+  });
+
+  return isFormValid;
 }
 
 function updateFormValidity(): void {
@@ -73,16 +74,9 @@ function updateFormValidity(): void {
   const submitButton = form?.querySelector('.submit-button') as HTMLButtonElement;
   if (!form || !submitButton) return;
 
-  const allInputsValid = Array.from(form.querySelectorAll('input[data-validation-type]'))
-    .every((input: Element) => {
-      const htmlInput = input as HTMLInputElement;
-      return !htmlInput.getAttribute('aria-invalid') || htmlInput.getAttribute('aria-invalid') === 'false';
-    });
-
   // Only update submit button if Braintree fields are not present
-  // (Braintree component handles its own submit button state)
   if (!document.querySelector('.hosted-fields-wrapper')) {
-    submitButton.disabled = !allInputsValid;
+    submitButton.disabled = !form.checkValidity();
   }
 }
 
@@ -94,6 +88,38 @@ export function showError(message: string): void {
     setTimeout(() => {
       errorDiv.classList.add("hidden");
     }, 5000);
+  }
+}
+
+export async function handleFormSubmission(event: SubmitEvent): Promise<
+  | { status: "success"; url: string }
+  | { status: "error"; message: string }
+> {
+  try {
+    event.preventDefault();
+
+    const form = event.target as HTMLFormElement;
+    if (!validateForm(form)) {
+      return { status: "error", message: "Please fix the validation errors" };
+    }
+
+    const shippingForm = document.querySelector(
+      "#shipping-address-form form",
+    ) as HTMLFormElement;
+    const billingForm = document.querySelector(
+      "#billing-address-form form",
+    ) as HTMLFormElement;
+    const sameAddressCheckbox = document.querySelector(
+      "#same-address",
+    ) as HTMLInputElement;
+    const emailInput = document.querySelector("#email") as HTMLInputElement;
+
+    return { status: "error", message: "Implementation not completed" }; // Temporary return until implementation is complete
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred";
+    showError(errorMessage);
+    return { status: "error", message: errorMessage };
   }
 }
 
