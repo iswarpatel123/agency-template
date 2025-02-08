@@ -12,23 +12,21 @@ const { type } = Astro.props;
       <input
         type="text"
         id={`firstName-${type}`}
-        placeholder="First name"
+        placeholder="First Name"
         data-validation-type="firstName"
         required
-        aria-describedby={`firstName-${type}-error`}
+        class="address-input"
       />
-      <div id={`firstName-${type}-error`} class="error-message" hidden></div>
     </div>
     <div class="input-group">
       <input
         type="text"
         id={`lastName-${type}`}
-        placeholder="Last name"
+        placeholder="Last Name"
         data-validation-type="lastName"
         required
-        aria-describedby={`lastName-${type}-error`}
+        class="address-input"
       />
-      <div id={`lastName-${type}-error`} class="error-message" hidden></div>
     </div>
   </div>
 
@@ -44,16 +42,16 @@ const { type } = Astro.props;
       placeholder="Address Line 1"
       data-validation-type="address"
       required
-      aria-describedby={`address1-${type}-error`}
+      class="address-input"
     />
-    <div id={`address1-${type}-error`} class="error-message" hidden></div>
   </div>
 
   <input
     type="text"
-    placeholder="Address Line 2 (Optional)"
     id={`address2-${type}`}
+    placeholder="Address Line 2 (Optional)"
     data-validation-type="address"
+    class="address-input"
   />
 
   <div class="city-state-zip">
@@ -64,9 +62,8 @@ const { type } = Astro.props;
         placeholder="City"
         data-validation-type="city"
         required
-        aria-describedby={`city-${type}-error`}
+        class="address-input"
       />
-      <div id={`city-${type}-error`} class="error-message" hidden></div>
     </div>
 
     <select id={`state-${type}`} name={`state-${type}`} required>
@@ -130,22 +127,21 @@ const { type } = Astro.props;
         placeholder="Zip Code"
         data-validation-type="zipCode"
         required
-        aria-describedby={`zip-${type}-error`}
+        class="address-input"
       />
-      <div id={`zip-${type}-error`} class="error-message" hidden></div>
     </div>
   </div>
 
   <div class="input-group">
     <input
-      type="text"
+      type="tel"
       id={`phone-${type}`}
       placeholder="Phone Number"
       data-validation-type="phoneNumber"
       required
-      aria-describedby={`phone-${type}-error`}
+      class="address-input"
+      pattern="\d{3}[-.]?\d{3}[-.]?\d{4}"
     />
-    <div id={`phone-${type}-error`} class="error-message" hidden></div>
   </div>
 </div>
 
@@ -160,22 +156,16 @@ const { type } = Astro.props;
     inputs.forEach((input) => {
       if (!(input instanceof HTMLInputElement)) return;
 
-      // Validate on blur if the field has a value
+      // Only validate on blur if the field has a value
       input.addEventListener("blur", () => {
         if (input.value.trim()) {
           validateField(input, true);
         }
       });
 
-      // Clear error on input
+      // Clear validation state on input
       input.addEventListener("input", () => {
-        const errorId = `${input.id}-error`;
-        const errorElement = document.getElementById(errorId);
-        if (errorElement) {
-          errorElement.textContent = "";
-          errorElement.hidden = true;
-        }
-        input.setAttribute("aria-invalid", "false");
+        input.setCustomValidity("");
       });
     });
   }
@@ -187,12 +177,6 @@ const { type } = Astro.props;
     flex-direction: column;
     gap: 0.25rem;
     width: 100%;
-  }
-
-  .error-message {
-    color: #dc2626;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
   }
 
   .city-state-zip {
@@ -226,17 +210,21 @@ const { type } = Astro.props;
     width: 100%;
   }
 
-  /* Remove HTML5 validation styles */
-  input:invalid:not(:placeholder-shown) {
-    border-color: inherit;
+  .address-input::placeholder {
+    color: #777;
+    font-weight: 600;
   }
 
-  input:valid:not(:placeholder-shown) {
-    border-color: inherit;
-  }
-
+  /* Remove custom validation styling to allow native validation UI */
+  input:invalid:not(:placeholder-shown),
+  input:valid:not(:placeholder-shown),
   input[aria-invalid="true"] {
-    border-color: #dc2626;
+    border-color: inherit;
+  }
+
+  /* Let browser handle invalid state */
+  input:invalid {
+    box-shadow: none;
   }
 
   label {

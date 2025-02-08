@@ -34,7 +34,7 @@ export const validationRules: Record<string, ValidationRule> = {
   },
   zipCode: {
     validator: (value: string) => /^\d{5}(-\d{4})?$/.test(value.trim()),
-    errorMessage: "Please enter a valid ZIP code",
+    errorMessage: "Please enter a valid ZIP code (e.g., 12345 or 12345-6789)",
   },
   phoneNumber: {
     validator: (value: string) => {
