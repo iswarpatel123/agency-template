@@ -20,6 +20,9 @@ export const BraintreeHostedFields = (props: Props) => {
   const [hostedFieldsInstance, setHostedFieldsInstance] = createSignal<HostedFields | null>(null);
   const [isValid, setIsValid] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
+  const [isLoading, setIsLoading] = createSignal(false);
+  const [retryCount, setRetryCount] = createSignal(0);
+  const MAX_RETRIES = 3;
   onMount(() => {
     const tokenizationKey = window.BRAINTREE_TOKENIZATION_KEY;
     if (!tokenizationKey) {
@@ -44,13 +47,20 @@ export const BraintreeHostedFields = (props: Props) => {
       }
     }).then((instance: HostedFields) => {
       setHostedFieldsInstance(instance);
+      // Debounced validity check to prevent excessive updates
+      let validityTimeout: number;
       instance.on('validityChange', (event: HostedFieldsEvent) => {
-        const fields = event.fields as Record<string, HostedFieldData>;
-        const formValid = Object.values(fields).every(
-          field => field.isValid === true
-        );
-        setIsValid(formValid);
-        props.onValidityChange(formValid);
+        clearTimeout(validityTimeout);
+        validityTimeout = window.setTimeout(() => {
+          const fields = event.fields as Record<string, HostedFieldData>;
+          const formValid = Object.values(fields).every(
+            field => field.isValid === true
+          );
+          if (isValid() !== formValid) {
+            setIsValid(formValid);
+            props.onValidityChange(formValid);
+          }
+        }, 300);
       });
     }).catch((err: Error) => {
       setError(err.message || 'Failed to initialize payment fields');
@@ -61,18 +71,33 @@ export const BraintreeHostedFields = (props: Props) => {
   });
   const handleSubmit = async () => {
     const instance = hostedFieldsInstance();
-    if (!instance) return;
+    if (!instance) {
+      setError('Payment system not initialized');
+      return;
+    }
+    if (isLoading()) return;
+
+    setIsLoading(true);
     try {
       const { nonce } = await instance.tokenize();
+      setError(null);
+      setRetryCount(0);
       props.onTokenize({ nonce });
     } catch (error) {
       console.error('Error tokenizing:', error);
-      if (error instanceof Error) {
-        setError(error.message);
+      if (retryCount() < MAX_RETRIES) {
+        setRetryCount(count => count + 1);
+        setTimeout(() => handleSubmit(), 1000 * Math.pow(2, retryCount())); // Exponential backoff
+        setError(`Payment processing failed. Retrying... (Attempt ${retryCount() + 1}/${MAX_RETRIES})`);
+      } else {
+        setError(error instanceof Error ? error.message : 'Payment processing failed after multiple attempts');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
-  createEffect(() => {
+  // Use onMount instead of createEffect for one-time event listener setup
+  onMount(() => {
     const handler = () => handleSubmit();
     document.addEventListener('tokenize-payment', handler);
     onCleanup(() => {
@@ -84,6 +109,11 @@ export const BraintreeHostedFields = (props: Props) => {
       {error() && (
         <div class="error-message" role="alert">
           {error()}
+        </div>
+      )}
+      {isLoading() && (
+        <div class="loading-indicator" role="status">
+          Processing payment...
         </div>
       )}
       <div class="card-number-wrapper">
@@ -165,6 +195,20 @@ export const BraintreeHostedFields = (props: Props) => {
         }
         #card-number iframe {
           font-size: 18px !important;
+        }
+      .loading-indicator {
+          color: #1976D2;
+          padding: 0.5rem;
+          margin-bottom: 1rem;
+          background-color: #E3F2FD;
+          border-radius: 4px;
+          text-align: center;
+        }
+
+        .hosted-fields-wrapper {
+          opacity: ${isLoading() ? '0.7' : '1'};
+          pointer-events: ${isLoading() ? 'none' : 'auto'};
+          transition: opacity 0.2s ease-in-out;
         }
       `}</style>
     </div>
