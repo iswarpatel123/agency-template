@@ -156,62 +156,7 @@ export const BraintreeHostedFields = (props: Props) => {
         <div id="cvv" class="hosted-field"></div>
       </div>
       <style>{`
-        .hosted-fields-wrapper {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          transition: opacity 0.2s ease-in-out;
-        }
-        
-        .hosted-fields-wrapper.loading {
-          opacity: 0.7;
-          pointer-events: none;
-        }
-
-        .hosted-field {
-          height: 48px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          background: #fff;
-          transition: border-color 0.2s ease;
-        }
-
-        .hosted-field:focus-within {
-          border-color: #1976D2;
-        }
-
-        .card-number-wrapper {
-          position: relative;
-        }
-
-        .lock-icon {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          pointer-events: none;
-        }
-
-        .expiry-security {
-          display: grid;
-          grid-template-columns: 2fr 1fr;
-          gap: 0.5rem;
-        }
-
-        .error-message {
-          color: #E53935;
-          padding: 0.5rem;
-          margin-bottom: 0.5rem;
-          background-color: #FFEBEE;
-          border-radius: 4px;
-          font-size: 0.875rem;
-        }
-
-        @media (max-width: 600px) {
-          .expiry-security {
-            grid-template-columns: 1fr;
-          }
-        }
+        @import url('/style/BraintreeHostedFields.css');
       `}</style>
     </div>
   );

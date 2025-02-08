@@ -8,10 +8,8 @@ interface Props {
 const { title } = Astro.props;
 const BRAINTREE_TOKENIZATION_KEY = import.meta.env.BRAINTREE_TOKENIZATION_KEY;
 
-// Define security headers and CSP
+// Define basic security headers without CSP
 const securityHeaders = {
-	"Content-Security-Policy":
-		"default-src 'self'; script-src 'self' 'unsafe-inline' https://js.braintreegateway.com; frame-src https://assets.braintreegateway.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline';",
 	"X-Content-Type-Options": "nosniff",
 	"X-Frame-Options": "DENY",
 	"X-XSS-Protection": "1; mode=block",
