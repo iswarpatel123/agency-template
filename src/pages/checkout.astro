@@ -1,12 +1,12 @@
 ---
-import Layout from '../layouts/Layout-Checkout.astro';
-import QuantitySelector from '../components/sections/quantity/QuantitySelector.astro';
-import ColorSizeSelector from '../components/sections/colorsize/ColorSizeSelector.tsx';
-import PaymentInfo from '../components/shared/PaymentInfo.astro';
-import Countdown from '../components/shared/Countdown.astro';
-import Footer from '../layouts/Footer.astro';
-import ProductInfo from '../components/sections/quantity/ProductInfo.astro';
-import PaymentForm from '../components/sections/PaymentForm.astro'
+import Layout from "../layouts/Layout-Checkout.astro";
+import QuantitySelector from "../components/sections/quantity/QuantitySelector.astro";
+import ColorSizeSelector from "../components/sections/colorsize/ColorSizeSelector.tsx";
+import PaymentInfo from "../components/sections/PaymentInfo.astro";
+import Countdown from "../components/sections/Countdown.astro";
+import Footer from "../layouts/Footer.astro";
+import ProductInfo from "../components/sections/quantity/ProductInfo.astro";
+import PaymentForm from "../components/sections/PaymentForm.astro";
 ---
 
 <Layout title="Checkout">
@@ -19,7 +19,8 @@ import PaymentForm from '../components/sections/PaymentForm.astro'
             <QuantitySelector />
             <div class="mt-8">
               <ColorSizeSelector client:visible />
-              <div class="mt-8"> <!-- Added a wrapper div for spacing -->
+              <div class="mt-8">
+                <!-- Added a wrapper div for spacing -->
                 <PaymentForm />
               </div>
             </div>
