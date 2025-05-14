@@ -7,6 +7,16 @@ const { type } = Astro.props;
 ---
 
 <div class="address-form">
+  <div class="form-field">
+    <input
+      type="email"
+      id="email"
+      placeholder="Email Address"
+      required
+      data-validation-type="email"
+      class="address-input"
+    />
+  </div>
   <div class="name-fields">
     <div class="input-group">
       <input

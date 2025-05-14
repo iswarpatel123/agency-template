@@ -18,7 +18,9 @@ import PaymentForm from "../components/sections/PaymentForm.astro";
           <div class="flex-1">
             <QuantitySelector />
             <div class="mt-8">
-              <ColorSizeSelector client:visible />
+              <div id="colorSizeSection" class="hidden">
+                <ColorSizeSelector client:visible />
+              </div>
               <div class="mt-8">
                 <!-- Added a wrapper div for spacing -->
                 <PaymentForm />

@@ -21,7 +21,7 @@ import QuantityOption from './QuantityOption.astro';
       ))}
     </div>
     <div class="px-4 mb-4">
-      <button class="cta-button" onclick="document.querySelector('.color-size-selector').scrollIntoView({ behavior: 'smooth' })">
+      <button id="showColorSizeBtn" class="cta-button">
         Select Your Color and Size <span class="arrow">→</span>
       </button>
     </div>
@@ -106,8 +106,6 @@ import QuantityOption from './QuantityOption.astro';
           
           options.forEach(opt => {
             opt.classList.remove('selected');
-            const optRadio = opt.querySelector('input[type="radio"]') as HTMLInputElement;
-            if (optRadio) optRadio.checked = false;
           });
           
           option.classList.add('selected');
@@ -115,7 +113,19 @@ import QuantityOption from './QuantityOption.astro';
         }
       });
     });
+
+    // Add event listener for the CTA button
+    const ctaButton = document.getElementById('showColorSizeBtn');
+    const colorSizeSection = document.getElementById('colorSizeSection');
     
-    window.dispatchEvent(new CustomEvent('quantityChange', { detail: parseInt(storedQuantity) }));
+    if (ctaButton && colorSizeSection) {
+      ctaButton.addEventListener('click', () => {
+        // Show the color size section
+        colorSizeSection.classList.remove('hidden');
+        
+        // Scroll to the color size section
+        colorSizeSection.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
   });
 </script>
