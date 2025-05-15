@@ -91,9 +91,11 @@ const ColorSizeSelector = (): JSX.Element => {
     );
     window.localStorage.setItem('shoeSelection', JSON.stringify(selection));
 
-    const paymentInfo = document.querySelector('.billing-form.payment-info');
-    if (paymentInfo) {
-      paymentInfo.scrollIntoView({ behavior: 'smooth' });
+    // Show the address form section
+    const addressFormSection = document.getElementById('addressFormSection');
+    if (addressFormSection) {
+      addressFormSection.classList.remove('hidden');
+      addressFormSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
