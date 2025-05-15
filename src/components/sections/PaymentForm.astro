@@ -102,28 +102,6 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
   // Handle form submission
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
-
-    // Clear any previous validation messages
-    validatedInputs.forEach((input) => input.setCustomValidity(""));
-
-    // Validate all fields
-    const isValid = validatedInputs.every((input) =>
-      validateField(input, true),
-    );
-
-    // Report validity to show native validation UI
-    form.reportValidity();
-
-    if (!isValid) {
-      // Find and focus first invalid field
-      const firstInvalid = validatedInputs.find(
-        (input) => !input.validity.valid,
-      );
-      firstInvalid?.focus();
-      return;
-    }
-
-    // Trigger payment tokenization if form is valid
     document.dispatchEvent(new CustomEvent("tokenize-payment"));
   });
 

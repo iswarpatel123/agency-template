@@ -28,7 +28,6 @@ const { type } = Astro.props;
         required
         class="address-input"
       />
-      <div class="validation-message">Please enter your first name</div>
     </div>
     <div class="input-group">
       <input
@@ -306,8 +305,23 @@ const { type } = Astro.props;
       if (showPaymentBtn && paymentFormSection) {
         showPaymentBtn.addEventListener("click", (e) => {
           e.preventDefault();
-          paymentFormSection.classList.remove("hidden");
-          paymentFormSection.scrollIntoView({ behavior: "smooth" });
+
+          // Validate all fields before proceeding
+          const inputs = form?.querySelectorAll("input[data-validation-type]");
+          let allValid = true;
+
+          if (inputs) {
+            inputs.forEach((input) => {
+              if (!validateField(input as HTMLInputElement, true)) {
+                allValid = false;
+              }
+            });
+          }
+
+          if (allValid) {
+            paymentFormSection.classList.remove("hidden");
+            paymentFormSection.scrollIntoView({ behavior: "smooth" });
+          }
         });
       }
     });
