@@ -1,3 +1,230 @@
-console error An invalid form control with name='state-billing' is not focusable. paymentform.astro:124
-
-<select id="state-billing" name="state-billing" required="" data-astro-cid-panvgfnh="" data-astro-source-file="/Users/ispatel/PycharmProjects/agency-template/src/components/sections/billing/AddressForm.astro" data-astro-source-loc="69:66"> <option value="" disabled="" selected="" data-astro-cid-panvgfnh="" data-astro-source-file="/Users/ispatel/PycharmProjects/agency-template/src/components/sections/billing/AddressForm.astro" data-astro-source-loc="70:42">State</option> 
+Braintree Hosted Fields integration with
+Next.js app router
+Recently, I worked on a Next.js project that required Braintree integration with a custom payment
+form using the Braintree Hosted Fields. While working on the integration, I faced a few
+complexities, navigated through them, and documented the successful process in this article. Let's
+take a look!
+First of all, sign up for a Braintree Sandbox account, log in to the Sandbox, and get the merchant ID,
+public key, private key, and create four environment variables as follows:
+BRAINTREE_MERCHANT_ID = your_merchant_id
+BRAINTREE_PRIVATE_KEY = your_private_key
+BRAINTREE_PUBLIC_KEY = your_public_key
+NEXT_PUBLIC_BRAINTREE_ENVIRONMENT = Sandbox
+After that, install braintree and braintree-web as dependencies, and @types/braintree and
+@types/braintree-web as dev dependencies in your Next.js project. We need these packages to
+work with Braintree.
+Now, let's configure Braintree with the Sandbox details. To do so, within your config directory,
+create a braintree.ts file with the following code:
+import braintree from 'braintree';
+type Environment = 'Sandbox' | 'Production';
+Mar 19, 2024
+AlaS. Work Blog Let's talk
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 1/8
+export const gateway = new braintree.BraintreeGateway({
+ environment:
+ braintree.Environment[process.env.BRAINTREE_ENVIRONMENT as Environment],
+ merchantId: process.env.BRAINTREE_MERCHANT_ID as string,
+ publicKey: process.env.BRAINTREE_PUBLIC_KEY as string,
+ privateKey: process.env.BRAINTREE_PRIVATE_KEY as string,
+});
+In the above code, we've created and exported a Braintree gateway method for us to be able to
+use it on other modules of our app.
+Next, we need an endpoint to get the Braintree client token. So, let's create a braintree-clienttoken directory within the api directory. And within the braintree-client-token directory,
+create a route.ts file with the following code:
+import { gateway } from '@config/braintree';
+export async function GET() {
+ try {
+ const res = await gateway.clientToken.generate({});
+ return Response.json({ clientToken: res.clientToken }, { status: 200 });
+ } catch (err) {
+ console.log(err);
+ return Response.json(
+ { message: 'Error generating braintree client token' },
+ { status: 500 }
+ );
+ }
+}
+In the above code, we've created a GET route to get the Braintree client token. We've used the
+Braintree gateway method to generate a client token and sent the token with the response.
+Now, we need the user interface for the users to enter their payment details and make the
+payment. So, let's create a PaymentForm component with the following code:
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 2/8
+'use client';
+import { useEffect, useState } from 'react';
+import braintree, { HostedFields } from 'braintree-web';
+export default function PaymentForm() {
+ const [hostedFields, setHostedFields] = useState<HostedFields | null>(null);
+ async function handlePayment() {
+ if (!hostedFields) return;
+ try {
+ const { nonce } = await hostedFields.tokenize();
+ const data = {
+ nonce,
+ id: 10000,
+ quantity: 1,
+ };
+ const res = await fetch(`/api/checkout`, {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ },
+ body: JSON.stringify(data),
+ });
+ const result = await res.json();
+ if (!res.ok) throw new Error(result.message);
+ } catch (err) {
+ console.log(err);
+ }
+ }
+ useEffect(() => {
+ async function initializeBraintree() {
+ try {
+ const res = await fetch('/api/braintree-client-token', {
+ cache: 'no-store',
+ });
+ const result = await res.json();
+ if (!res.ok) throw new Error(result.message);
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 3/8
+ const clientInstance = await braintree.client.create({
+ authorization: result.clientToken,
+ });
+ const hostedFields = await braintree.hostedFields.create({
+ fields: {
+ number: {
+ selector: '#card_number',
+ placeholder: '4111 1111 1111 1111',
+ },
+ ...(process.env.NEXT_PUBLIC_BRAINTREE_ENVIRONMENT ===
+ 'Production' && {
+ cvv: {
+ selector: '#cvv',
+ placeholder: '123',
+ },
+ }),
+ expirationDate: {
+ selector: '#expiration_date',
+ placeholder: 'Expiration',
+ },
+ },
+ client: clientInstance,
+ });
+ setHostedFields(hostedFields);
+ } catch (err) {
+ console.log(err);
+ }
+ }
+ initializeBraintree();
+ }, []);
+ return (
+ <form action={handlePayment}>
+ <div>
+ <label htmlFor='card_number'>Card Number</label>
+ <div id='card_number'></div>
+ </div>
+ {process.env.NEXT_PUBLIC_BRAINTREE_ENVIRONMENT === 'Production' && (
+ <div>
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 4/8
+ <label htmlFor='cvv'>CVV</label>
+ <div id='cvv'></div>
+ </div>
+ )}
+ <div>
+ <label htmlFor='expiration_date'>Expiration Date</label>
+ <div id='expiration_date'></div>
+ </div>
+ <button type='submit'>Pay</button>
+ </form>
+ );
+}
+In the above code, we've made the PaymentForm component a client component to store the
+hostedFields in the state and use the useEffect hook to perform some asynchronous
+operations. Making it a client component also allows us to show any payment errors as alerts. If
+you are interested in learning about handling form errors in the Next.js app router, I have an article
+on Handle form errors correctly in a Next.js app built with the app router which provides useful
+insights.
+Now, in the PaymentForm component, we have a handlePayment function used as the form
+action to test the payment, a useEffect hook to initialize Braintree, and necessary JSX for the
+payment form user interface.
+Inside the useEffect hook, we have the initializeBraintree function that does a few things.
+First, we make a request to the /api/braintree-client-token endpoint to get the client token.
+Then, we create a clientInstance with the token. After that, we create the hostedFields and
+update the state with it.
+Two important notes here. First, we only show the CVV field when the Braintree environment is set
+to Production . This is because CVV doesn't work in the Sandbox environment. Second, we've
+used an empty array as the dependency of the useEffect hook so the Braintree initialization
+happens only once.
+Congratulations, the integration part is done! To test the integration, we need an endpoint to
+process the payment. So, let's create one by creating a checkout directory within the api
+directory. And within the checkout directory, create a route.ts file with the following code:
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 5/8
+import { gateway } from '@config/braintree';
+export async function POST(request: Request) {
+ const { nonce, id, quantity } = await request.json();
+ // Validate data
+ if (!nonce || !id || !quantity) {
+ console.log('Nonce, id or quantity is missing');
+ return Response.json(
+ { message: 'Nonce, id or quantity is missing' },
+ { status: 400 }
+ );
+ }
+ // Get item from the database
+ const item = {
+ id: 10000,
+ price: 10,
+ };
+ const totalPrice = item.price * quantity;
+ try {
+ // Create payment
+ const payment = await gateway.transaction.sale({
+ amount: totalPrice.toFixed(2),
+ paymentMethodNonce: nonce,
+ options: {
+ submitForSettlement: true,
+ },
+ });
+ if (!payment.success) {
+ console.log('Payment failed');
+ return Response.json({ message: 'Payment failed' }, { status: 500 });
+ }
+ return Response.json({ message: 'Checkout successful' }, { status: 200 });
+ } catch (err) {
+ console.log(err);
+ return Response.json({ message: 'Failed to checkout' }, { status: 500 });
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 6/8
+ }
+}
+In the above code, first, we check if all the required fields are provided. Then we do the database
+query to pull the necessary data to calculate the total price. After that, we create a Braintree
+payment for the total amount. We check the payment status and return a payment failed
+response if the payment isn't successful. Otherwise, we return a checkout success response.
+Now, let's test the integration by using a Braintree test card. Enter the card details in the payment
+form with an expiry date and click the pay button. This should process a test payment which you
+can verify by logging in to your Sandbox account.
+That's it! Your Next.js application now has the Braintree integration to process payments. Check
+out the go live article to ship the integration to production. Feel free to share this article with
+someone who might also find it useful. Cheers!
+Share this article with your friends
+Elevate your JavaScript
+and solopreneur journey
+Name*
+Preferred name
+Email*
+you@example.com
+Subscribe
+Supercharge your JavaScript skills and
+solopreneur career. Subscribe now for
+expert tips and insights!
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 7/8
+AlaS.
+Coded in Visual Studio Code with GitHub dark theme by yours truly. Built with Next.js and
+deployed with Vercel.
+5/15/25, 3:25 PM Braintree Hosted Fields integration with Next.js app router | Alamin Shaikh
+https://www.alaminshaikh.com/blog/braintree-hosted-fields-integration-with-nextjs 8/8
