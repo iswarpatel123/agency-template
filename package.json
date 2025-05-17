@@ -2,13 +2,14 @@
   "name": "agency-template",
   "type": "module",
   "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
+"scripts": {
+  "dev": "astro dev",
+  "start": "astro dev",
+  "build": "astro check && astro build",
+  "preview": "astro preview",
+  "astro": "astro",
+  "dev:cf": "astro build && wrangler pages dev ./dist"
+},
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/cloudflare": "^12.5.3",
@@ -32,6 +33,7 @@
     "@types/node": "^22.13.0",
     "@types/uuid": "^10.0.0",
     "prettier": "^3.2.4",
-    "prettier-plugin-astro": "^0.13.0"
+    "prettier-plugin-astro": "^0.13.0",
+    "wrangler": "^4.15.2"
   }
 }

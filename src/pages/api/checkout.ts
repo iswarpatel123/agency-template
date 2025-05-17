@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { gateway } from '../../config/braintree';
+import { gateway } from '../../utils/checkout/braintree';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST({ request }: APIContext) {

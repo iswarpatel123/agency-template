@@ -1,6 +1,5 @@
 import type { ShoeSelection, AddressData, CheckoutPayload } from '../../types/checkout';
 import { prices } from '../data/prices';
-import { executeFunction, FunctionPath } from './appwrite';
 
 // Memoization with TTL
 class MemoCache<T> {
@@ -181,13 +180,13 @@ class PaymentQueue {
                 },
                 body: JSON.stringify(payload),
             });
-            
+
             const data = await response.json();
-            
+
             if (!data.ok || !data.orderId || !data.transactionId) {
                 throw new Error(data.message || data.error || 'Checkout failed');
             }
-            
+
             return {
                 orderId: data.orderId,
                 transactionId: data.transactionId

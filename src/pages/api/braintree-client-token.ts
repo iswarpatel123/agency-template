@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { gateway } from '../../config/braintree';
+import { gateway } from '../../utils/checkout/braintree';
 
 export async function GET(context: APIContext) {
     try {
