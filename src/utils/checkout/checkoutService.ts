@@ -174,10 +174,20 @@ class PaymentQueue {
 
     private async executeWithRetry(payload: BraintreeCheckoutPayload): Promise<{ orderId: string; transactionId: string }> {
         try {
-            const data = await executeFunction(JSON.stringify(payload), FunctionPath.CHECKOUT);
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+            
+            const data = await response.json();
+            
             if (!data.ok || !data.orderId || !data.transactionId) {
                 throw new Error(data.message || data.error || 'Checkout failed');
             }
+            
             return {
                 orderId: data.orderId,
                 transactionId: data.transactionId
