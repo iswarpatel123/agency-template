@@ -80,7 +80,6 @@ export async function POST({ request }: APIContext) {
                 JSON.stringify({
                     ok: false,
                     error: result.message || 'Transaction failed',
-                    message: 'Payment processing failed'
                 }),
                 {
                     status: 400,

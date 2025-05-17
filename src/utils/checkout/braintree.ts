@@ -8,8 +8,8 @@ type Environment = 'Sandbox' | 'Production';
 // in .ts/.js files processed by Vite (which Astro uses under the hood).
 
 export const gateway = new braintree.BraintreeGateway({
-  environment: braintree.Environment[process.env.BRAINTREE_ENVIRONMENT as Environment || 'Sandbox'],
-  merchantId: process.env.BRAINTREE_MERCHANT_ID as string,
-  publicKey: process.env.BRAINTREE_PUBLIC_KEY as string,
-  privateKey: process.env.BRAINTREE_PRIVATE_KEY as string,
+  environment: braintree.Environment[import.meta.env.BRAINTREE_ENVIRONMENT as Environment || 'Sandbox'],
+  merchantId: import.meta.env.BRAINTREE_MERCHANT_ID as string,
+  publicKey: import.meta.env.BRAINTREE_PUBLIC_KEY as string,
+  privateKey: import.meta.env.BRAINTREE_PRIVATE_KEY as string,
 });

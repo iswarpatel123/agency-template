@@ -22,16 +22,27 @@ export const BraintreeHostedFields = (props: Props) => {
   let validityTimeout: number;
   let mountRetryTimeout: number;
 
-  const initializeHostedFields = async (attempt = 0) => {
-    const tokenizationKey = window.BRAINTREE_TOKENIZATION_KEY;
-    if (!tokenizationKey) {
-      setError('Missing Braintree tokenization key');
-      return;
-    }
-
+  const fetchClientToken = async (): Promise<string> => {
     try {
+      const response = await fetch('/api/braintree-client-token');
+      if (!response.ok) {
+        setError('Failed to fetch client token. Please refresh and try again.');
+        throw new Error('Failed to fetch client token');
+      }
+      const data = await response.json();
+      return data.clientToken;
+    } catch (err) {
+      setError('Failed to fetch client token. Please refresh and try again.');
+      throw err;
+    }
+  };
+
+  const initializeHostedFields = async (attempt = 0) => {
+    try {
+      const clientToken = await fetchClientToken();
+      
       const instance = await hostedFields.create({
-        authorization: tokenizationKey,
+        authorization: clientToken,
         fields: {
           number: {
             selector: '#card-number',
@@ -75,7 +86,7 @@ export const BraintreeHostedFields = (props: Props) => {
           RETRY_DELAY * Math.pow(2, attempt)
         );
       } else {
-        setError('Failed to initialize payment system. Please refresh the page.');
+        setError('Failed to initialize payment system. Please refresh and try again.');
       }
     }
   };
@@ -113,7 +124,7 @@ export const BraintreeHostedFields = (props: Props) => {
         setTimeout(() => handleSubmit(), RETRY_DELAY * Math.pow(2, retryCount()));
         setError(`Payment processing failed. Retrying... (${retryCount() + 1}/${MAX_RETRIES})`);
       } else {
-        setError('Payment processing failed. Please try again.');
+        setError('Payment processing failed. Please refresh and try again.');
       }
     } finally {
       setIsLoading(false);
