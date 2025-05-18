@@ -98,10 +98,10 @@ export const BraintreeHostedFields = (props: Props) => {
         const fields = event.fields as Record<string, { isValid: boolean }>;
         const formValid = Object.values(fields).every(field => field.isValid);
         
-        if (isValid() !== formValid) {
-          setIsValid(formValid);
+        if (typeof props.onValidityChange === 'function') {
           props.onValidityChange(formValid);
         }
+        setIsValid(formValid);
       }, DEBOUNCE_DELAY);
     });
 
@@ -117,11 +117,22 @@ export const BraintreeHostedFields = (props: Props) => {
       const { nonce } = await instance.tokenize();
       setError(null);
       setRetryCount(0);
-      props.onTokenize({ nonce });
+      
+      if (typeof props.onTokenize === 'function') {
+        props.onTokenize({ nonce });
+      } else {
+        // Dispatch a custom event if the callback is not available
+        const event = new CustomEvent('payment-tokenized', { 
+          detail: { nonce },
+          bubbles: true 
+        });
+        document.dispatchEvent(event);
+      }
     } catch (error) {
       if (retryCount() < MAX_RETRIES) {
         setRetryCount(count => count + 1);
         setTimeout(() => handleSubmit(), RETRY_DELAY * Math.pow(2, retryCount()));
+        console.error('Payment processing failed:', error);
         setError(`Payment processing failed. Retrying... (${retryCount() + 1}/${MAX_RETRIES})`);
       } else {
         setError('Payment processing failed. Please refresh and try again.');

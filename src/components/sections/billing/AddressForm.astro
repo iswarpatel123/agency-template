@@ -6,12 +6,13 @@ interface Props {
 const { type } = Astro.props;
 ---
 
-<div class="address-form">
+<form class="address-form" data-form-type={type}>
   <h1 class="shipping-title bold-text">Shipping address</h1>
   <div class="form-field">
     <input
       type="email"
       id="email"
+      name="email"
       placeholder="Email Address"
       required
       data-validation-type="email"
@@ -23,6 +24,7 @@ const { type } = Astro.props;
       <input
         type="text"
         id={`firstName-${type}`}
+        name="firstName"
         placeholder="First Name"
         data-validation-type="firstName"
         required
@@ -33,6 +35,7 @@ const { type } = Astro.props;
       <input
         type="text"
         id={`lastName-${type}`}
+        name="lastName"
         placeholder="Last Name"
         data-validation-type="lastName"
         required
@@ -42,7 +45,7 @@ const { type } = Astro.props;
   </div>
 
   <label for={`${type}-country`}>Country/Region</label>
-  <select id={`${type}-country`} name={`${type}-country`} required>
+  <select id={`${type}-country`} name="country" required>
     <option value="US" selected>United States</option>
   </select>
 
@@ -50,6 +53,7 @@ const { type } = Astro.props;
     <input
       type="text"
       id={`address1-${type}`}
+      name="address1"
       placeholder="Address Line 1"
       data-validation-type="address"
       required
@@ -60,6 +64,7 @@ const { type } = Astro.props;
   <input
     type="text"
     id={`address2-${type}`}
+    name="address2"
     placeholder="Address Line 2 (Optional)"
     data-validation-type="address"
     class="address-input"
@@ -70,6 +75,7 @@ const { type } = Astro.props;
       <input
         type="text"
         id={`city-${type}`}
+        name="city"
         placeholder="City"
         data-validation-type="city"
         required
@@ -77,7 +83,7 @@ const { type } = Astro.props;
       />
     </div>
 
-    <select id={`state-${type}`} name={`state-${type}`} required>
+    <select id={`state-${type}`} name="state" required>
       <option value="" disabled selected>State</option>
       <option value="AL">Alabama</option>
       <option value="AK">Alaska</option>
@@ -135,6 +141,7 @@ const { type } = Astro.props;
       <input
         type="text"
         id={`zip-${type}`}
+        name="zipCode"
         placeholder="Zip Code"
         data-validation-type="zipCode"
         required
@@ -325,4 +332,4 @@ const { type } = Astro.props;
       }
     });
   </script>
-</div>
+</form>

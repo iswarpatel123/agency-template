@@ -67,14 +67,19 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 
 <script>
   import {
-    validateField,
     handleBillingAddressVisibility,
     handleSecurityInfoPopup,
     showError,
   } from "../../utils/form/formUtils";
+  import {
+    getAddressData,
+    getSelectedItems,
+    calculateTotalAmount,
+    PaymentQueue,
+  } from "../../utils/checkout/checkoutService";
 
   // Form elements
-  const form = document.querySelector("form") as HTMLFormElement;
+  const form = document.querySelector("#payment-form") as HTMLFormElement;
   const sameAddressCheckbox = document.getElementById(
     "same-address",
   ) as HTMLInputElement;
@@ -83,37 +88,77 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
   ) as HTMLElement;
   const lockIcon = document.querySelector(".lock-icon") as HTMLElement;
   const speechBubble = document.querySelector(".speech-bubble") as HTMLElement;
-  const validatedInputs = Array.from(
-    document.querySelectorAll("input[data-validation-type]"),
-  ) as HTMLInputElement[];
+  const submitButton = document.querySelector(
+    ".submit-button",
+  ) as HTMLButtonElement;
 
-  // Initialize billing address visibility and security popup handlers
+  // Initialize handlers
   handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
   handleSecurityInfoPopup(lockIcon, speechBubble);
 
-  // Handle checkbox change for billing address visibility
+  // Event listeners
   sameAddressCheckbox.addEventListener("change", () => {
     handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
   });
 
-  // Handle form submission
-  form?.addEventListener("submit", (event) => {
+  submitButton?.addEventListener("click", (event) => {
     event.preventDefault();
     document.dispatchEvent(new CustomEvent("tokenize-payment"));
   });
 
-  // Handle payment tokenized event
   const handlePaymentTokenized = async (e: CustomEvent) => {
     const { nonce } = e.detail;
     const formOverlay = document.getElementById("form-overlay");
     formOverlay?.classList.remove("hidden");
+    const checkoutError = document.getElementById("checkout-error");
+    checkoutError?.classList.add("hidden");
 
     try {
-      // Your existing payment processing logic...
+      const shippingForm = document.querySelector(
+        'form[data-form-type="shipping"]',
+      ) as HTMLFormElement;
+      if (!shippingForm) throw new Error("Shipping form not found");
+
+      const emailInput = shippingForm.querySelector(
+        'input[type="email"]',
+      ) as HTMLInputElement;
+      if (!emailInput?.value) throw new Error("Email is required");
+
+      const shippingAddress = getAddressData(shippingForm);
+      let billingAddress = null;
+
+      if (!sameAddressCheckbox.checked) {
+        const billingForm = document.querySelector(
+          'form[data-form-type="billing"]',
+        ) as HTMLFormElement;
+        if (billingForm) {
+          billingAddress = getAddressData(billingForm);
+        }
+      }
+
+      const items = getSelectedItems();
+      const quantity = parseInt(
+        localStorage.getItem("selectedQuantity") || "1",
+        10,
+      );
+      const totalAmount = calculateTotalAmount(quantity);
+
+      const payload = {
+        items,
+        shippingAddress,
+        billingAddress: billingAddress || shippingAddress,
+        email: emailInput.value,
+        totalAmount,
+      };
+
+      const paymentQueue = new PaymentQueue();
+      const result = await paymentQueue.process(payload, nonce);
+
+      window.location.href = `/order-confirmation?orderId=${result.orderId}`;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred";
-      showError(errorMessage);
+      showError(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
     } finally {
       formOverlay?.classList.add("hidden");
     }
@@ -126,15 +171,6 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 
   // Cleanup
   window.addEventListener("unload", () => {
-    form?.removeEventListener("submit", (event) => {
-      event.preventDefault();
-      validatedInputs.forEach((input) => validateField(input, true));
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
-      document.dispatchEvent(new CustomEvent("tokenize-payment"));
-    });
     document.removeEventListener(
       "payment-tokenized",
       handlePaymentTokenized as unknown as EventListener,

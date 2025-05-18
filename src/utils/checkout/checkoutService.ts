@@ -134,7 +134,7 @@ export interface BraintreeCheckoutResponse {
 }
 
 // Request queue implementation for payment processing
-class PaymentQueue {
+export class PaymentQueue {
     private processing = false;
     private retryCount = 0;
     private readonly maxRetries = 3;
@@ -172,8 +172,9 @@ class PaymentQueue {
     }
 
     private async executeWithRetry(payload: BraintreeCheckoutPayload): Promise<{ orderId: string; transactionId: string }> {
+        console.log('Executing Braintree payment with payload:', payload);
         try {
-            const response = await fetch('/api/checkout', {
+            const response = await fetch('/api/braintree-checkout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

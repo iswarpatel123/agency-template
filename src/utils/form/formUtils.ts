@@ -95,13 +95,14 @@ export function formatCardNumber(input: HTMLInputElement): void {
 }
 
 export function showError(message: string): void {
-  const errorDiv = document.getElementById("checkout-error");
-  if (errorDiv) {
-    errorDiv.textContent = message;
-    errorDiv.classList.remove("hidden");
-    setTimeout(() => {
-      errorDiv.classList.add("hidden");
-    }, 5000);
+  const errorElement = document.getElementById('checkout-error');
+  if (errorElement) {
+    errorElement.textContent = message;
+    errorElement.classList.remove('hidden');
+    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    console.error('Error element not found:', message);
+    alert(message); // Fallback if error element not found
   }
 }
 
