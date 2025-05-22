@@ -1,5 +1,6 @@
 import type { ShoeSelection, AddressData, CheckoutPayload } from '../../types/checkout';
 import { prices } from '../data/prices';
+import { executeFunction, FunctionPath } from './appwrite'; // Import executeFunction and FunctionPath
 
 // Memoization with TTL
 class MemoCache<T> {
@@ -172,34 +173,51 @@ export class PaymentQueue {
     }
 
     private async executeWithRetry(payload: BraintreeCheckoutPayload): Promise<{ orderId: string; transactionId: string }> {
-        console.log('Executing Braintree payment with payload:', payload);
+        console.log('Executing Appwrite checkout function with payload:', payload);
         try {
-            const response = await fetch('/api/braintree-checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
+            // Execute the Appwrite function for checkout
+            const executionResult = await executeFunction(JSON.stringify(payload), FunctionPath.CHECKOUT);
 
-            const data = await response.json();
-
-            if (!data.ok || !data.orderId || !data.transactionId) {
-                throw new Error(data.message || data.error || 'Checkout failed');
+            // Parse the response body from the function execution result
+            let data: BraintreeCheckoutResponse;
+            try {
+                 data = JSON.parse(executionResult.responseBody);
+            } catch (parseError) {
+                console.error('Failed to parse Appwrite function response:', executionResult.responseBody, parseError);
+                throw new Error('Invalid response from checkout service.');
             }
 
+            // Check if the function execution was successful and returned ok: true
+            if (!data.ok) {
+                 // Throw an error with the message from the Appwrite function response
+                 const errorMessage = data.message || data.error || 'Checkout failed';
+                 console.error('Appwrite checkout function reported failure:', data);
+                 throw new Error(errorMessage);
+            }
+
+             // Check for required fields in the success response
+            if (!data.orderId || !data.transactionId) {
+                console.error('Appwrite checkout function returned success but missing orderId or transactionId:', data);
+                throw new Error('Checkout succeeded but failed to get order details.');
+            }
+
+            // Return success result
             return {
                 orderId: data.orderId,
                 transactionId: data.transactionId
             };
-        } catch (error) {
+        } catch (error: any) {
+            // Retry mechanism
             if (this.retryCount < this.maxRetries) {
                 this.retryCount++;
                 const delay = this.baseDelay * Math.pow(2, this.retryCount - 1);
+                console.warn(`Checkout failed: ${error.message || 'Unknown error'}. Retrying (${this.retryCount}/${this.maxRetries})...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 return this.executeWithRetry(payload);
             }
-            throw error;
+            // If retries exhausted, re-throw the final error
+            console.error('Checkout failed after multiple retries:', error);
+            throw error; // Propagate the error to the caller (handlePaymentTokenized)
         }
     }
 }
