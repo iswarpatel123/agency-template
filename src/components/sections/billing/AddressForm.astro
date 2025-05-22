@@ -7,7 +7,9 @@ const { type } = Astro.props;
 ---
 
 <form class="address-form" data-form-type={type}>
-  <h1 class="shipping-title bold-text">Shipping address</h1>
+  <div class="title-bar">
+    <h2>3. Tell Us Where To Ship</h2>
+  </div>
   <div class="form-field">
     <input
       type="email"
@@ -132,7 +134,7 @@ const { type } = Astro.props;
       <option value="VT">Vermont</option>
       <option value="VA">Virginia</option>
       <option value="WA">Washington</option>
-      <option value="WV">West Virginia</option>
+      <option value="WV">West Virginia</n>
       <option value="WI">Wisconsin</option>
       <option value="WY">Wyoming</option>
     </select>
@@ -160,7 +162,7 @@ const { type } = Astro.props;
       class="address-input"
     />
 
-    <div class="px-4 mb-4 mt-6">
+    <div class="mb-4 mt-6">
       <button id="showPaymentBtn" class="cta-button">
         Continue to Payment <span class="arrow">→</span>
       </button>
@@ -168,115 +170,36 @@ const { type } = Astro.props;
   </div>
 
   <style>
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      width: 100%;
-    }
-
-    .city-state-zip {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .city-state-zip input {
-      width: 100%;
-    }
+    @import "/style/AddressForm.css";
 
     .address-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .name-fields {
-      display: flex;
-      gap: 1rem;
-    }
-
-    input,
-    select {
-      padding: 0.75rem;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: #f9f9f9;
-      color: #000;
-      font-weight: 600;
-      width: 100%;
-    }
-
-    .address-input::placeholder {
-      color: #777;
-      font-weight: 600;
-    }
-
-    /* Remove custom validation styling to allow native validation UI */
-    input:invalid:not(:placeholder-shown),
-    input[aria-invalid="true"] {
-      border-color: #dc2626;
-      background-color: #fef2f2;
-    }
-
-    input:valid:not(:placeholder-shown) {
-      border-color: #10b981;
-    }
-
-    /* Show validation messages */
-    input:invalid:not(:placeholder-shown) + .validation-message {
-      display: block;
-      color: #dc2626;
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-    }
-
-    input:valid:not(:placeholder-shown),
-    input[aria-invalid="true"] {
-      border-color: inherit;
-    }
-
-    input:invalid {
-      box-shadow: none;
-    }
-
-    label {
-      color: #000;
-    }
-
-    @media (max-width: 600px) {
-      .name-fields {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-    }
-
-    .cta-button {
-      width: 100%;
-      height: 48px;
+      overflow: hidden;
       border-radius: 0.5rem;
-      background: #fbbf24;
-      color: #000;
+      padding: 0;
       border: none;
-      padding: 1rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: background-color 0.2s;
-      box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
-    .cta-button:hover {
-      background: #f59e0b;
-    }
+    .title-bar {
+        background: #004236;
+        color: white;
+        padding: 1rem 1.5rem;
+        margin-top: 0;
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+        box-sizing: border-box;
+      }
 
-    .arrow {
-      font-size: 1.25rem;
+    .title-bar h2 {
+        margin: 0;
+        font-size: 1.0rem;
+        font-weight: 600;
+      }
+
+    @media (max-width: 768px) {
+      .title-bar {
+        padding: 1rem;
+      }
     }
   </style>
 

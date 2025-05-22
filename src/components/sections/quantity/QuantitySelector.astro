@@ -1,24 +1,26 @@
 ---
-import { prices } from '../../../utils/data/prices';
-import QuantityHeader from './QuantityHeader.astro';
-import QuantityOption from './QuantityOption.astro';
+import { prices } from "../../../utils/data/prices";
+import QuantityHeader from "../../shared/QuantityHeader.astro";
+import QuantityOption from "./QuantityOption.astro";
 ---
 
 <div class="quantity-selector">
   <div class="selector-container">
     <QuantityHeader />
     <div class="options">
-      {Object.entries(prices).map(([pairs, price]) => (
-        <div class="quantity-option" data-pairs={pairs}>
-          <QuantityOption
-            pairs={parseInt(pairs)}
-            pricePerPair={price.pricePerPair}
-            originalPrice={price.originalPrice}
-            savePercentage={price.savePercentage}
-            badge={price.badge}
-          />
-        </div>
-      ))}
+      {
+        Object.entries(prices).map(([pairs, price]) => (
+          <div class="quantity-option" data-pairs={pairs}>
+            <QuantityOption
+              pairs={parseInt(pairs)}
+              pricePerPair={price.pricePerPair}
+              originalPrice={price.originalPrice}
+              savePercentage={price.savePercentage}
+              badge={price.badge}
+            />
+          </div>
+        ))
+      }
     </div>
     <div class="px-4 mb-4">
       <button id="showColorSizeBtn" class="cta-button">
@@ -47,7 +49,7 @@ import QuantityOption from './QuantityOption.astro';
   .quantity-option {
     cursor: pointer;
   }
-  
+
   .quantity-option.selected :global(.option) {
     border-color: #000;
   }
@@ -72,7 +74,9 @@ import QuantityOption from './QuantityOption.astro';
     justify-content: center;
     gap: 0.5rem;
     transition: background-color 0.2s;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
   .cta-button:hover {
@@ -85,46 +89,51 @@ import QuantityOption from './QuantityOption.astro';
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const storedQuantity = window.localStorage.getItem('selectedQuantity') || '1';
-    window.localStorage.setItem('selectedQuantity', storedQuantity);
-    
-    const options = document.querySelectorAll('.quantity-option');
-    options.forEach(option => {
-      const pairs = option.getAttribute('data-pairs');
-      const radio = option.querySelector('input[type="radio"]') as HTMLInputElement;
-      
+  document.addEventListener("DOMContentLoaded", () => {
+    const storedQuantity =
+      window.localStorage.getItem("selectedQuantity") || "1";
+    window.localStorage.setItem("selectedQuantity", storedQuantity);
+
+    const options = document.querySelectorAll(".quantity-option");
+    options.forEach((option) => {
+      const pairs = option.getAttribute("data-pairs");
+      const radio = option.querySelector(
+        'input[type="radio"]',
+      ) as HTMLInputElement;
+
       if (pairs === storedQuantity) {
-        option.classList.add('selected');
+        option.classList.add("selected");
         if (radio) radio.checked = true;
       }
-      
-      option.addEventListener('click', () => {
+
+      option.addEventListener("click", () => {
         if (pairs) {
-          window.localStorage.setItem('selectedQuantity', pairs);
-          window.dispatchEvent(new CustomEvent('quantityChange', { detail: parseInt(pairs) }));
-          
-          options.forEach(opt => {
-            opt.classList.remove('selected');
+          window.localStorage.setItem("selectedQuantity", pairs);
+          window.dispatchEvent(
+            new CustomEvent("quantityChange", { detail: parseInt(pairs) }),
+          );
+
+          options.forEach((opt) => {
+            opt.classList.remove("selected");
           });
-          
-          option.classList.add('selected');
+
+          option.classList.add("selected");
           if (radio) radio.checked = true;
         }
       });
     });
 
     // Add event listener for the CTA button
-    const ctaButton = document.getElementById('showColorSizeBtn');
-    const colorSizeSection = document.getElementById('colorSizeSection');
-    
+    const ctaButton = document.getElementById("showColorSizeBtn");
+    const colorSizeSection = document.getElementById("colorSizeSection");
+
     if (ctaButton && colorSizeSection) {
-      ctaButton.addEventListener('click', () => {
+      ctaButton.addEventListener("click", () => {
         // Show the color size section
-        colorSizeSection.classList.remove('hidden');
-        
+        colorSizeSection.classList.remove("hidden");
+
         // Scroll to the color size section
-        colorSizeSection.scrollIntoView({ behavior: 'smooth' });
+        colorSizeSection.scrollIntoView({ behavior: "smooth" });
       });
     }
   });
