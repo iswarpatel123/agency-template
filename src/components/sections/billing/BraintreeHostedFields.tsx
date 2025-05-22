@@ -2,6 +2,7 @@
 import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import hostedFields from 'braintree-web/hosted-fields';
 import type { HostedFields, HostedFieldsEvent } from 'braintree-web/hosted-fields';
+import { executeFunction, FunctionPath } from '../../../utils/checkout/appwrite'; // Import the Appwrite utility
 
 interface Props {
   onValidityChange: (isValid: boolean) => void;
@@ -24,15 +25,23 @@ export const BraintreeHostedFields = (props: Props) => {
 
   const fetchClientToken = async (): Promise<string> => {
     try {
-      const response = await fetch('/api/braintree-client-token');
-      if (!response.ok) {
-        setError('Failed to fetch client token. Please refresh and try again.');
-        throw new Error('Failed to fetch client token');
+      // Call the Appwrite function instead of the old API route
+      const executionResult = await executeFunction('', FunctionPath.CLIENT_TOKEN);
+
+      // Appwrite function execution response format needs to be parsed
+      // Assuming the JSON response from the function is in responseBody
+      const functionResponse = JSON.parse(executionResult.responseBody);
+
+      if (!functionResponse.ok) {
+        setError(`Failed to fetch client token: ${functionResponse.message}. Please refresh and try again.`);
+        throw new Error(`Failed to fetch client token: ${functionResponse.message}`);
       }
-      const data = await response.json();
-      return data.clientToken;
-    } catch (err) {
-      setError('Failed to fetch client token. Please refresh and try again.');
+
+      return functionResponse.clientToken;
+
+    } catch (err: any) {
+      console.error('Error fetching client token from Appwrite function:', err);
+      setError(`Failed to fetch client token. Please refresh and try again. Error: ${err.message}`);
       throw err;
     }
   };
@@ -40,7 +49,7 @@ export const BraintreeHostedFields = (props: Props) => {
   const initializeHostedFields = async (attempt = 0) => {
     try {
       const clientToken = await fetchClientToken();
-      
+
       const instance = await hostedFields.create({
         authorization: clientToken,
         fields: {
@@ -97,7 +106,7 @@ export const BraintreeHostedFields = (props: Props) => {
       validityTimeout = window.setTimeout(() => {
         const fields = event.fields as Record<string, { isValid: boolean }>;
         const formValid = Object.values(fields).every(field => field.isValid);
-        
+
         if (typeof props.onValidityChange === 'function') {
           props.onValidityChange(formValid);
         }
@@ -117,14 +126,14 @@ export const BraintreeHostedFields = (props: Props) => {
       const { nonce } = await instance.tokenize();
       setError(null);
       setRetryCount(0);
-      
+
       if (typeof props.onTokenize === 'function') {
         props.onTokenize({ nonce });
       } else {
         // Dispatch a custom event if the callback is not available
-        const event = new CustomEvent('payment-tokenized', { 
+        const event = new CustomEvent('payment-tokenized', {
           detail: { nonce },
-          bubbles: true 
+          bubbles: true
         });
         document.dispatchEvent(event);
       }
@@ -146,7 +155,7 @@ export const BraintreeHostedFields = (props: Props) => {
     initializeHostedFields();
     const handler = () => handleSubmit();
     document.addEventListener('tokenize-payment', handler);
-    
+
     onCleanup(() => {
       document.removeEventListener('tokenize-payment', handler);
       window.clearTimeout(validityTimeout);
@@ -164,12 +173,12 @@ export const BraintreeHostedFields = (props: Props) => {
       )}
       <div class="card-number-wrapper">
         <div id="card-number" class="hosted-field"></div>
-        <img 
-          src="/assets/checkout/card-lock.webp" 
-          alt="Secure payment" 
-          class="lock-icon" 
-          loading="lazy" 
-          width="20" 
+        <img
+          src="/assets/checkout/card-lock.webp"
+          alt="Secure payment"
+          class="lock-icon"
+          loading="lazy"
+          width="20"
           height="20"
         />
       </div>
