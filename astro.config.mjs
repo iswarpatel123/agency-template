@@ -1,12 +1,9 @@
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import solidJs from "@astrojs/solid-js";
-import cloudflare from "@astrojs/cloudflare"; // Import the Cloudflare adapter
 
 // https://astro.build/config
 export default defineConfig({
-  output: "server", // Set output to server for Cloudflare Pages
-  adapter: cloudflare(), // Add the Cloudflare adapter
   integrations: [tailwind(), solidJs()],
   // site: "https://your-cloudflare-pages-domain.pages.dev", // Optional: Update if you have a custom domain or remove if using the default
   // The existing site property "https://vbartalis.github.io" is for GitHub Pages.
