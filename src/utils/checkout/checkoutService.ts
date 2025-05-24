@@ -143,7 +143,8 @@ export class PaymentQueue {
 
     async process(
         payload: CheckoutPayload,
-        paymentMethodNonce: string
+        paymentMethodNonce: string,
+        deviceData?: string
     ): Promise<{ orderId: string; transactionId: string }> {
         if (this.processing) {
             throw new Error('Payment is already being processed');
@@ -151,7 +152,7 @@ export class PaymentQueue {
 
         this.processing = true;
         try {
-            const braintreePayload = this.prepareBraintreePayload(payload, paymentMethodNonce);
+            const braintreePayload = this.prepareBraintreePayload(payload, paymentMethodNonce, deviceData);
             return await this.executeWithRetry(braintreePayload);
         } finally {
             this.processing = false;
@@ -159,7 +160,7 @@ export class PaymentQueue {
         }
     }
 
-    private prepareBraintreePayload(payload: CheckoutPayload, nonce: string): BraintreeCheckoutPayload {
+    private prepareBraintreePayload(payload: CheckoutPayload, nonce: string, deviceData?: string): BraintreeCheckoutPayload {
         return {
             name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
             email: payload.email,
@@ -168,7 +169,8 @@ export class PaymentQueue {
             billingAddress: payload.billingAddress || payload.shippingAddress,
             orderDetails: payload.items,
             payment_method_nonce: nonce,
-            amount: payload.totalAmount
+            amount: payload.totalAmount,
+            deviceData: deviceData
         };
     }
 

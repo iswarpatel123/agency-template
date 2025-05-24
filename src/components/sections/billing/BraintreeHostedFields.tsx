@@ -1,12 +1,14 @@
 /** @jsxImportSource solid-js */
 import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import hostedFields from 'braintree-web/hosted-fields';
+import client from 'braintree-web/client';
+import dataCollector from 'braintree-web/data-collector';
 import type { HostedFields, HostedFieldsEvent } from 'braintree-web/hosted-fields';
 import { executeFunction, FunctionPath } from '../../../utils/checkout/appwrite'; // Import the Appwrite utility
 
 interface Props {
   onValidityChange: (isValid: boolean) => void;
-  onTokenize: (payload: { nonce: string }) => void;
+  onTokenize: (payload: { nonce: string; deviceData?: string }) => void;
 }
 
 const DEBOUNCE_DELAY = 300;
@@ -19,17 +21,14 @@ export const BraintreeHostedFields = (props: Props) => {
   const [error, setError] = createSignal<string | null>(null);
   const [isLoading, setIsLoading] = createSignal(false);
   const [retryCount, setRetryCount] = createSignal(0);
+  const [deviceData, setDeviceData] = createSignal<string | undefined>(undefined);
 
   let validityTimeout: number;
   let mountRetryTimeout: number;
 
   const fetchClientToken = async (): Promise<string> => {
     try {
-      // Call the Appwrite function instead of the old API route
       const executionResult = await executeFunction('', FunctionPath.CLIENT_TOKEN);
-
-      // Appwrite function execution response format needs to be parsed
-      // Assuming the JSON response from the function is in responseBody
       const functionResponse = JSON.parse(executionResult.responseBody);
 
       if (!functionResponse.ok) {
@@ -38,7 +37,6 @@ export const BraintreeHostedFields = (props: Props) => {
       }
 
       return functionResponse.clientToken;
-
     } catch (err: any) {
       console.error('Error fetching client token from Appwrite function:', err);
       setError(`Failed to fetch client token. Please refresh and try again. Error: ${err.message}`);
@@ -49,6 +47,19 @@ export const BraintreeHostedFields = (props: Props) => {
   const initializeHostedFields = async (attempt = 0) => {
     try {
       const clientToken = await fetchClientToken();
+
+      // Create braintree client instance
+      const clientInstance = await client.create({
+        authorization: clientToken,
+      });
+
+      // Create dataCollector instance
+      const dataCollectorInstance = await dataCollector.create({
+        client: clientInstance,
+        paypal: false,
+      });
+
+      setDeviceData(dataCollectorInstance.deviceData);
 
       const instance = await hostedFields.create({
         authorization: clientToken,
@@ -73,8 +84,8 @@ export const BraintreeHostedFields = (props: Props) => {
             color: '#333',
             'font-size': '16px',
             'font-family': 'system-ui, sans-serif',
-            padding: '0.75rem', // Add padding to create a gap
-            'font-weight': '600', // Match font weight with AddressForm
+            padding: '0.75rem',
+            'font-weight': '600',
           },
           'input.invalid': {
             color: '#E53935',
@@ -128,11 +139,10 @@ export const BraintreeHostedFields = (props: Props) => {
       setRetryCount(0);
 
       if (typeof props.onTokenize === 'function') {
-        props.onTokenize({ nonce });
+        props.onTokenize({ nonce, deviceData: deviceData() });
       } else {
-        // Dispatch a custom event if the callback is not available
         const event = new CustomEvent('payment-tokenized', {
-          detail: { nonce },
+          detail: { nonce, deviceData: deviceData() },
           bubbles: true
         });
         document.dispatchEvent(event);

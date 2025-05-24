@@ -41,6 +41,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
           }
         }}
         onTokenize={(payload) => {
+          // Pass deviceData along with nonce
           document.dispatchEvent(
             new CustomEvent("payment-tokenized", { detail: payload }),
           );
@@ -107,7 +108,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
   });
 
   const handlePaymentTokenized = async (e: CustomEvent) => {
-    const { nonce } = e.detail;
+    const { nonce, deviceData } = e.detail;
     const formOverlay = document.getElementById("form-overlay");
     formOverlay?.classList.remove("hidden");
     const checkoutError = document.getElementById("checkout-error");
@@ -152,7 +153,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
       };
 
       const paymentQueue = new PaymentQueue();
-      const result = await paymentQueue.process(payload, nonce);
+      const result = await paymentQueue.process(payload, nonce, deviceData);
 
       window.location.href = `/order-confirmation?orderId=${result.orderId}`;
     } catch (error) {
