@@ -76,7 +76,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     getAddressData,
     getSelectedItems,
     calculateTotalAmount,
-    PaymentQueue,
+    processBraintreePayment,
   } from "../../utils/checkout/checkoutService";
 
   // Form elements
@@ -152,9 +152,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
         totalAmount,
       };
 
-      const paymentQueue = new PaymentQueue();
-      const result = await paymentQueue.process(payload, nonce, deviceData);
-
+      const result = await processBraintreePayment(payload, nonce, deviceData);
       window.location.href = `/order-confirmation?orderId=${result.orderId}`;
     } catch (error) {
       showError(
