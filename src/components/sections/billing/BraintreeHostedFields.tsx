@@ -4,7 +4,6 @@ import hostedFields from 'braintree-web/hosted-fields';
 import client from 'braintree-web/client';
 import dataCollector from 'braintree-web/data-collector';
 import type { HostedFields, HostedFieldsEvent } from 'braintree-web/hosted-fields';
-import { executeFunction, FunctionPath } from '../../../utils/checkout/appwrite'; // Import the Appwrite utility
 
 interface Props {
   onValidityChange: (isValid: boolean) => void;
@@ -14,6 +13,19 @@ interface Props {
 const DEBOUNCE_DELAY = 300;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
+
+const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'http://braintree-render.onrender.com';
+
+export async function fetchClientToken(): Promise<string> {
+    const res = await fetch(`${RENDER_API_BASE}/client_token`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error('Failed to fetch client token');
+    const data = await res.json();
+    if (!data.clientToken) throw new Error('No client token in response');
+    return data.clientToken;
+}
 
 export const BraintreeHostedFields = (props: Props) => {
   const [hostedFieldsInstance, setHostedFieldsInstance] = createSignal<HostedFields | null>(null);
@@ -25,24 +37,6 @@ export const BraintreeHostedFields = (props: Props) => {
 
   let validityTimeout: number;
   let mountRetryTimeout: number;
-
-  const fetchClientToken = async (): Promise<string> => {
-    try {
-      const executionResult = await executeFunction('', FunctionPath.CLIENT_TOKEN);
-      const functionResponse = JSON.parse(executionResult.responseBody);
-
-      if (!functionResponse.ok) {
-        setError(`Failed to fetch client token: ${functionResponse.message}. Please refresh and try again.`);
-        throw new Error(`Failed to fetch client token: ${functionResponse.message}`);
-      }
-
-      return functionResponse.clientToken;
-    } catch (err: any) {
-      console.error('Error fetching client token from Appwrite function:', err);
-      setError(`Failed to fetch client token. Please refresh and try again. Error: ${err.message}`);
-      throw err;
-    }
-  };
 
   const initializeHostedFields = async (attempt = 0) => {
     try {

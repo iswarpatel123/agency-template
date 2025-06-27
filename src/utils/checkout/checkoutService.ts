@@ -1,6 +1,5 @@
 import type { ShoeSelection, AddressData, CheckoutPayload } from '../../types/checkout';
 import { prices } from '../data/prices';
-import { executeFunction, FunctionPath } from './appwrite'; // Import executeFunction and FunctionPath
 
 // Memoization with TTL
 class MemoCache<T> {
@@ -114,115 +113,67 @@ export function calculateTotalAmount(quantity: number): number {
     return total;
 }
 
-export interface BraintreeCheckoutPayload {
-    name: string;
-    email: string;
-    phone: string;
-    shippingAddress: AddressData;
-    billingAddress: AddressData;
-    orderDetails: ShoeSelection[];
-    payment_method_nonce: string;
-    amount: number;
-    deviceData?: string;
+const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'http://braintree-render.onrender.com';
+
+export async function fetchClientToken(): Promise<string> {
+    const res = await fetch(`${RENDER_API_BASE}/client_token`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error('Failed to fetch client token');
+    const data = await res.json();
+    if (!data.clientToken) throw new Error('No client token in response');
+    return data.clientToken;
 }
 
-export interface BraintreeCheckoutResponse {
-    ok: boolean;
-    orderId?: string;
-    transactionId?: string;
-    message?: string;
-    error?: string;
-}
+export async function processBraintreePayment(
+    payload: CheckoutPayload,
+    paymentMethodNonce: string,
+    deviceData?: string
+): Promise<{ orderId: string; transactionId: string }> {
+    const braintreePayload = {
+        name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
+        email: payload.email,
+        phone: payload.shippingAddress.phone || '',
+        shippingAddress: payload.shippingAddress,
+        billingAddress: payload.billingAddress || payload.shippingAddress,
+        orderDetails: payload.items,
+        payment_method_nonce: paymentMethodNonce,
+        amount: payload.totalAmount,
+        deviceData: deviceData || '',
+    };
 
-// Request queue implementation for payment processing
-export class PaymentQueue {
-    private processing = false;
-    private retryCount = 0;
-    private readonly maxRetries = 3;
-    private readonly baseDelay = 1000;
+    let retryCount = 0;
+    const maxRetries = 3;
+    const baseDelay = 1000;
 
-    async process(
-        payload: CheckoutPayload,
-        paymentMethodNonce: string,
-        deviceData?: string
-    ): Promise<{ orderId: string; transactionId: string }> {
-        if (this.processing) {
-            throw new Error('Payment is already being processed');
-        }
-
-        this.processing = true;
+    while (retryCount <= maxRetries) {
         try {
-            const braintreePayload = this.prepareBraintreePayload(payload, paymentMethodNonce, deviceData);
-            return await this.executeWithRetry(braintreePayload);
-        } finally {
-            this.processing = false;
-            this.retryCount = 0;
-        }
-    }
-
-    private prepareBraintreePayload(payload: CheckoutPayload, nonce: string, deviceData?: string): BraintreeCheckoutPayload {
-        return {
-            name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
-            email: payload.email,
-            phone: payload.shippingAddress.phone || '',
-            shippingAddress: payload.shippingAddress,
-            billingAddress: payload.billingAddress || payload.shippingAddress,
-            orderDetails: payload.items,
-            payment_method_nonce: nonce,
-            amount: payload.totalAmount,
-            deviceData: deviceData
-        };
-    }
-
-    private async executeWithRetry(payload: BraintreeCheckoutPayload): Promise<{ orderId: string; transactionId: string }> {
-        console.log('Executing Appwrite checkout function with payload:', payload);
-        try {
-            // Execute the Appwrite function for checkout
-            const executionResult = await executeFunction(JSON.stringify(payload), FunctionPath.CHECKOUT);
-
-            // Parse the response body from the function execution result
-            let data: BraintreeCheckoutResponse;
-            try {
-                 data = JSON.parse(executionResult.responseBody);
-            } catch (parseError) {
-                console.error('Failed to parse Appwrite function response:', executionResult.responseBody, parseError);
-                throw new Error('Invalid response from checkout service.');
-            }
-
-            // Check if the function execution was successful and returned ok: true
+            const res = await fetch(`${RENDER_API_BASE}/checkout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(braintreePayload),
+            });
+            const data = await res.json();
             if (!data.ok) {
-                 // Throw an error with the message from the Appwrite function response
-                 const errorMessage = data.message || data.error || 'Checkout failed';
-                 console.error('Appwrite checkout function reported failure:', data);
-                 throw new Error(errorMessage);
+                throw new Error(data.message || data.error || 'Checkout failed');
             }
-
-             // Check for required fields in the success response
             if (!data.orderId || !data.transactionId) {
-                console.error('Appwrite checkout function returned success but missing orderId or transactionId:', data);
                 throw new Error('Checkout succeeded but failed to get order details.');
             }
-
-            // Return success result
             return {
                 orderId: data.orderId,
-                transactionId: data.transactionId
+                transactionId: data.transactionId,
             };
         } catch (error: any) {
-            // Retry mechanism
-            if (this.retryCount < this.maxRetries) {
-                this.retryCount++;
-                const delay = this.baseDelay * Math.pow(2, this.retryCount - 1);
-                console.warn(`Checkout failed: ${error.message || 'Unknown error'}. Retrying (${this.retryCount}/${this.maxRetries})...`);
+            if (retryCount < maxRetries) {
+                retryCount++;
+                const delay = baseDelay * Math.pow(2, retryCount - 1);
                 await new Promise(resolve => setTimeout(resolve, delay));
-                return this.executeWithRetry(payload);
+            } else {
+                throw error;
             }
-            // If retries exhausted, re-throw the final error
-            console.error('Checkout failed after multiple retries:', error);
-            throw error; // Propagate the error to the caller (handlePaymentTokenized)
         }
     }
+    throw new Error('Checkout failed after multiple retries');
 }
-
-const paymentQueue = new PaymentQueue();
-export const processBraintreePayment = paymentQueue.process.bind(paymentQueue);
