@@ -143,37 +143,24 @@ export async function processBraintreePayment(
         deviceData: deviceData || '',
     };
 
-    let retryCount = 0;
-    const maxRetries = 3;
-    const baseDelay = 1000;
-
-    while (retryCount <= maxRetries) {
-        try {
-            const res = await fetch(`${RENDER_API_BASE}/checkout`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(braintreePayload),
-            });
-            const data = await res.json();
-            if (!data.ok) {
-                throw new Error(data.message || data.error || 'Checkout failed');
-            }
-            if (!data.orderId || !data.transactionId) {
-                throw new Error('Checkout succeeded but failed to get order details.');
-            }
-            return {
-                orderId: data.orderId,
-                transactionId: data.transactionId,
-            };
-        } catch (error: any) {
-            if (retryCount < maxRetries) {
-                retryCount++;
-                const delay = baseDelay * Math.pow(2, retryCount - 1);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            } else {
-                throw error;
-            }
+    try {
+        const res = await fetch(`${RENDER_API_BASE}/checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(braintreePayload),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+            throw new Error(data.message || data.error || 'Checkout failed');
         }
+        if (!data.orderId || !data.transactionId) {
+            throw new Error('Checkout succeeded but failed to get order details.');
+        }
+        return {
+            orderId: data.orderId,
+            transactionId: data.transactionId,
+        };
+    } catch (error: any) {
+        throw error;
     }
-    throw new Error('Checkout failed after multiple retries');
 }
