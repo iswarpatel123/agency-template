@@ -135,9 +135,9 @@ export async function processBraintreePayment(
         name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
         email: payload.email,
         phone: payload.shippingAddress.phone || '',
-        shippingAddress: payload.shippingAddress,
-        billingAddress: payload.billingAddress || payload.shippingAddress,
-        orderDetails: payload.items,
+        shippingAddress: JSON.stringify(payload.shippingAddress),
+        billingAddress: JSON.stringify(payload.billingAddress || ''),
+        orderDetails: JSON.stringify(payload.items),
         payment_method_nonce: paymentMethodNonce,
         amount: payload.totalAmount,
         deviceData: deviceData || '',
@@ -151,7 +151,7 @@ export async function processBraintreePayment(
         });
         const data = await res.json();
         if (!data.ok) {
-            throw new Error(data.message || data.error || 'Checkout failed');
+            throw new Error(data.error ? `error: ${data.error}` : data.message || 'Checkout failed');
         }
         if (!data.orderId || !data.transactionId) {
             throw new Error('Checkout succeeded but failed to get order details.');
