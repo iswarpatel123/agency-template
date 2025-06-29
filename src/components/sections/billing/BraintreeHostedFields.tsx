@@ -4,6 +4,7 @@ import hostedFields from 'braintree-web/hosted-fields';
 import client from 'braintree-web/client';
 import dataCollector from 'braintree-web/data-collector';
 import type { HostedFields, HostedFieldsEvent } from 'braintree-web/hosted-fields';
+import type { DataCollector } from 'braintree-web/data-collector';
 
 interface Props {
   onValidityChange: (isValid: boolean) => void;
@@ -29,23 +30,24 @@ export async function fetchClientToken(): Promise<string> {
 
 export const BraintreeHostedFields = (props: Props) => {
   const [hostedFieldsInstance, setHostedFieldsInstance] = createSignal<HostedFields | null>(null);
+  const [dataCollectorInstance, setDataCollectorInstance] = createSignal<DataCollector | null>(null);
   const [isValid, setIsValid] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const [isLoading, setIsLoading] = createSignal(false);
   const [retryCount, setRetryCount] = createSignal(0);
-  const [deviceData, setDeviceData] = createSignal<string | undefined>(undefined);
+  const [deviceData, setDeviceData] = createSignal<string>('');
 
   let validityTimeout: number;
   let mountRetryTimeout: number;
 
   const showGlobalError = (message: string) => {
-    // Use the global error display function
     const event = new CustomEvent('show-global-error', { detail: { message } });
     document.dispatchEvent(event);
   };
 
   const initializeHostedFields = async (attempt = 0) => {
     try {
+      setIsLoading(true);
       const clientToken = await fetchClientToken();
 
       // Create braintree client instance
@@ -53,14 +55,25 @@ export const BraintreeHostedFields = (props: Props) => {
         authorization: clientToken,
       });
 
-      // Create dataCollector instance
-      const dataCollectorInstance = await dataCollector.create({
-        client: clientInstance,
-        paypal: false,
-      });
+      // Create dataCollector instance first
+      try {
+        const dataCollectorInstance = await dataCollector.create({
+          client: clientInstance,
+          paypal: false, // Only collect device data for credit cards
+          kount: true    // Enable Kount fraud protection
+        });
 
-      setDeviceData(dataCollectorInstance.deviceData);
+        setDataCollectorInstance(dataCollectorInstance);
+        setDeviceData(dataCollectorInstance.deviceData || '');
+        
+        console.log('Device data collected:', dataCollectorInstance.deviceData ? 'Success' : 'Failed');
+      } catch (dataCollectorError) {
+        console.warn('Data collector failed to initialize:', dataCollectorError);
+        // Continue without device data - it's not critical for basic payments
+        setDeviceData('');
+      }
 
+      // Create hosted fields instance
       const instance = await hostedFields.create({
         authorization: clientToken,
         fields: {
@@ -98,10 +111,12 @@ export const BraintreeHostedFields = (props: Props) => {
 
       setHostedFieldsInstance(instance);
       setupEventListeners(instance);
-      setError(null); // Clear any previous errors
+      setError(null);
+      setRetryCount(0);
     } catch (err) {
       console.error('Failed to initialize Braintree:', err);
       if (attempt < MAX_RETRIES) {
+        setRetryCount(attempt + 1);
         mountRetryTimeout = window.setTimeout(
           () => initializeHostedFields(attempt + 1),
           RETRY_DELAY * Math.pow(2, attempt)
@@ -109,6 +124,8 @@ export const BraintreeHostedFields = (props: Props) => {
       } else {
         showGlobalError('Failed to initialize payment system. Please refresh and try again.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -138,18 +155,27 @@ export const BraintreeHostedFields = (props: Props) => {
       const { nonce } = await instance.tokenize();
       setError(null);
 
+      const currentDeviceData = deviceData();
+      console.log('Submitting payment with device data:', currentDeviceData ? 'Present' : 'Missing');
+
       if (typeof props.onTokenize === 'function') {
-        props.onTokenize({ nonce, deviceData: deviceData() });
+        props.onTokenize({ 
+          nonce, 
+          deviceData: currentDeviceData || undefined 
+        });
       } else {
         const event = new CustomEvent('payment-tokenized', {
-          detail: { nonce, deviceData: deviceData() },
+          detail: { 
+            nonce, 
+            deviceData: currentDeviceData || undefined 
+          },
           bubbles: true
         });
         document.dispatchEvent(event);
       }
     } catch (error) {
       console.error('Payment processing failed:', error);
-      showGlobalError('Payment processing failed. Please refresh and try again.');
+      showGlobalError('Payment processing failed. Please check your card details and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -164,7 +190,18 @@ export const BraintreeHostedFields = (props: Props) => {
       document.removeEventListener('tokenize-payment', handler);
       window.clearTimeout(validityTimeout);
       window.clearTimeout(mountRetryTimeout);
-      hostedFieldsInstance()?.teardown().catch(console.error);
+      
+      // Cleanup instances
+      const hostedFields = hostedFieldsInstance();
+      const dataCollector = dataCollectorInstance();
+      
+      if (hostedFields) {
+        hostedFields.teardown().catch(console.error);
+      }
+      
+      if (dataCollector && typeof dataCollector.teardown === 'function') {
+        dataCollector.teardown().catch(console.error);
+      }
     });
   });
 

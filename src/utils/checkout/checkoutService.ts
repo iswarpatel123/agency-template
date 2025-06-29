@@ -140,8 +140,10 @@ export async function processBraintreePayment(
         orderDetails: JSON.stringify(payload.items),
         payment_method_nonce: paymentMethodNonce,
         amount: payload.totalAmount,
-        deviceData: deviceData || '',
+        deviceData: deviceData || '', // Ensure deviceData is always included
     };
+
+    console.log('Sending payment request with device data:', deviceData ? 'Present' : 'Missing');
 
     try {
         const res = await fetch(`${RENDER_API_BASE}/checkout`, {
