@@ -1,45 +1,4 @@
 import { debounce } from "../general";
-import { validationRules } from "../validation/validationRules";
-
-// Cache validation results
-const validationCache = new Map<string, { result: boolean; timestamp: number }>();
-const CACHE_TTL = 5000; // 5 seconds
-
-export function validateField(
-  input: HTMLInputElement,
-  showError: boolean = false
-): boolean {
-  const validationType = input.dataset.validationType;
-  if (!validationType || !validationRules[validationType]) return true;
-
-  const value = input.value.trim();
-  const rule = validationRules[validationType];
-
-  // Skip validation if field is empty and not required
-  if (value.length === 0 && !input.required) {
-    input.setCustomValidity("");
-    return true;
-  }
-
-  const isValid = rule.validator(value);
-
-  // Always set the validation message when validating
-  input.setCustomValidity(isValid ? "" : rule.errorMessage);
-  input.setAttribute("aria-invalid", (!isValid).toString());
-
-  return isValid;
-}
-
-export function debouncedValidate(
-  input: HTMLInputElement,
-  delay: number = 300
-): void {
-  const debounced = debounce((inputElement: HTMLInputElement) => {
-    validateField(inputElement);
-  }, delay);
-
-  debounced(input);
-}
 
 export const handleBillingAddressVisibility = debounce((
   sameAddressCheckbox: HTMLInputElement | null,
@@ -108,15 +67,17 @@ export async function handleFormSubmission(event: SubmitEvent): Promise<
     event.preventDefault();
 
     const form = event.target as HTMLFormElement;
-    const inputs = Array.from(form.querySelectorAll("input[data-validation-type]")) as HTMLInputElement[];
-
-    // Validate all fields and show errors
-    const isValid = inputs.every(input => validateField(input, true));
+    
+    // Use HTML5 form validation
+    const isValid = form.checkValidity();
 
     if (!isValid) {
-      // Find first invalid input and focus it
-      const firstInvalid = inputs.find(input => !input.validity.valid);
-      firstInvalid?.focus();
+      // Find first invalid input and show native validation message
+      const firstInvalid = form.querySelector(':invalid') as HTMLInputElement;
+      if (firstInvalid) {
+        firstInvalid.focus();
+        firstInvalid.reportValidity();
+      }
       return { status: "error", message: "Please fix the validation errors" };
     }
 
