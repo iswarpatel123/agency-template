@@ -94,16 +94,10 @@ export function formatCardNumber(input: HTMLInputElement): void {
   input.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
 }
 
-export function showError(message: string): void {
-  const errorElement = document.getElementById('checkout-error');
-  if (errorElement) {
-    errorElement.textContent = message;
-    errorElement.classList.remove('hidden');
-    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } else {
-    console.error('Error element not found:', message);
-    alert(message); // Fallback if error element not found
-  }
+// Global error display function - centralized
+export function showGlobalError(message: string): void {
+  const event = new CustomEvent('show-global-error', { detail: { message } });
+  document.dispatchEvent(event);
 }
 
 export async function handleFormSubmission(event: SubmitEvent): Promise<
@@ -131,23 +125,7 @@ export async function handleFormSubmission(event: SubmitEvent): Promise<
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-    showError(errorMessage);
+    showGlobalError(errorMessage);
     return { status: "error", message: errorMessage };
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

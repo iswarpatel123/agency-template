@@ -38,6 +38,12 @@ export const BraintreeHostedFields = (props: Props) => {
   let validityTimeout: number;
   let mountRetryTimeout: number;
 
+  const showGlobalError = (message: string) => {
+    // Use the global error display function
+    const event = new CustomEvent('show-global-error', { detail: { message } });
+    document.dispatchEvent(event);
+  };
+
   const initializeHostedFields = async (attempt = 0) => {
     try {
       const clientToken = await fetchClientToken();
@@ -92,6 +98,7 @@ export const BraintreeHostedFields = (props: Props) => {
 
       setHostedFieldsInstance(instance);
       setupEventListeners(instance);
+      setError(null); // Clear any previous errors
     } catch (err) {
       console.error('Failed to initialize Braintree:', err);
       if (attempt < MAX_RETRIES) {
@@ -100,7 +107,7 @@ export const BraintreeHostedFields = (props: Props) => {
           RETRY_DELAY * Math.pow(2, attempt)
         );
       } else {
-        setError('Failed to initialize payment system. Please refresh and try again.');
+        showGlobalError('Failed to initialize payment system. Please refresh and try again.');
       }
     }
   };
@@ -142,7 +149,7 @@ export const BraintreeHostedFields = (props: Props) => {
       }
     } catch (error) {
       console.error('Payment processing failed:', error);
-      setError('Payment processing failed. Please refresh and try again.');
+      showGlobalError('Payment processing failed. Please refresh and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -163,11 +170,6 @@ export const BraintreeHostedFields = (props: Props) => {
 
   return (
     <div class="hosted-fields-wrapper" classList={{ loading: isLoading() }}>
-      {error() && (
-        <div class="error-message" role="alert">
-          {error()}
-        </div>
-      )}
       <div class="card-number-wrapper">
         <div id="card-number" class="hosted-field"></div>
         <img

@@ -5,7 +5,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 ---
 
 <div class="billing-form payment-info">
-  <div id="checkout-error" class="checkout-error hidden" role="alert"></div>
+  <div id="global-error" class="global-error hidden" role="alert"></div>
   <form id="payment-form" class="payment-form" novalidate>
     <div id="form-overlay" class="form-overlay hidden">
       <div class="spinner"></div>
@@ -70,7 +70,6 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
   import {
     handleBillingAddressVisibility,
     handleSecurityInfoPopup,
-    showError,
   } from "../../utils/form/formUtils";
   import {
     getAddressData,
@@ -78,6 +77,29 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     calculateTotalAmount,
     processBraintreePayment,
   } from "../../utils/checkout/checkoutService";
+
+  // Global error display function
+  const showGlobalError = (message: string) => {
+    const errorElement = document.getElementById('global-error');
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.classList.remove('hidden');
+      errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Auto-hide after 10 seconds
+      setTimeout(() => {
+        errorElement.classList.add('hidden');
+      }, 10000);
+    } else {
+      console.error('Global error element not found:', message);
+      alert(message); // Fallback
+    }
+  };
+
+  // Listen for global error events
+  document.addEventListener('show-global-error', (e: CustomEvent) => {
+    showGlobalError(e.detail.message);
+  });
 
   // Form elements
   const form = document.querySelector("#payment-form") as HTMLFormElement;
@@ -111,8 +133,10 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     const { nonce, deviceData } = e.detail;
     const formOverlay = document.getElementById("form-overlay");
     formOverlay?.classList.remove("hidden");
-    const checkoutError = document.getElementById("checkout-error");
-    checkoutError?.classList.add("hidden");
+    
+    // Hide any existing errors
+    const globalError = document.getElementById("global-error");
+    globalError?.classList.add("hidden");
 
     try {
       const shippingForm = document.querySelector(
@@ -155,7 +179,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
       const result = await processBraintreePayment(payload, nonce, deviceData);
       window.location.href = `/order-confirmation?orderId=${result.orderId}`;
     } catch (error) {
-      showError(
+      showGlobalError(
         error instanceof Error ? error.message : "An unexpected error occurred",
       );
     } finally {
@@ -174,9 +198,29 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
       "payment-tokenized",
       handlePaymentTokenized as unknown as EventListener,
     );
+    document.removeEventListener('show-global-error', (e: CustomEvent) => {
+      showGlobalError(e.detail.message);
+    });
   });
 </script>
 
 <style>
   @import "/style/PaymentForm.css";
+  
+  .global-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  .global-error.hidden {
+    display: none;
+  }
 </style>
