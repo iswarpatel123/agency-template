@@ -65,39 +65,33 @@ export function getSelectedItems(): ShoeSelection[] {
 
 export function getAddressData(form: HTMLFormElement): AddressData {
     const formData = new FormData(form);
-    const requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'zipCode', 'country'];
-    const optionalFields = ['address2', 'phone'];
 
-    const getData = (field: string, required: boolean): string => {
+    const getData = (field: string): string => {
         const value = formData.get(field)?.toString().trim();
-        if (required && !value) {
-            throw new Error(`Required field ${field} is missing`);
-        }
         return value || '';
     };
 
-    try {
-        const address: AddressData = {
-            firstName: getData('firstName', true),
-            lastName: getData('lastName', true),
-            address1: getData('address1', true),
-            city: getData('city', true),
-            state: getData('state', true),
-            zipCode: getData('zipCode', true),
-            country: getData('country', true)
-        };
+    const address: AddressData = {
+        firstName: getData('firstName'),
+        lastName: getData('lastName'),
+        address1: getData('address1'),
+        city: getData('city'),
+        state: getData('state'),
+        zipCode: getData('zipCode'),
+        country: getData('country') || 'US'
+    };
 
-        // Add optional fields only if they have values
-        const address2 = getData('address2', false);
-        if (address2) address.address2 = address2;
-
-        const phone = getData('phone', false);
-        if (phone) address.phone = phone;
-
-        return address;
-    } catch (error) {
-        throw new Error(`Invalid address data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    const address2 = getData('address2');
+    if (address2) {
+        address.address2 = address2;
     }
+
+    const phone = getData('phone');
+    if (phone) {
+        address.phone = phone;
+    }
+
+    return address;
 }
 
 export function calculateTotalAmount(quantity: number): number {
@@ -113,7 +107,7 @@ export function calculateTotalAmount(quantity: number): number {
     return total;
 }
 
-const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'http://braintree-render.onrender.com';
+const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'https://braintree-render.onrender.com';
 
 export async function fetchClientToken(): Promise<string> {
     const res = await fetch(`${RENDER_API_BASE}/client_token`, {
@@ -140,10 +134,8 @@ export async function processBraintreePayment(
         orderDetails: JSON.stringify(payload.items),
         payment_method_nonce: paymentMethodNonce,
         amount: payload.totalAmount,
-        deviceData: deviceData || '', // Ensure deviceData is always included
+        deviceData: deviceData || '',
     };
-
-    console.log('Sending payment request with device data:', deviceData ? 'Present' : 'Missing');
 
     try {
         const res = await fetch(`${RENDER_API_BASE}/checkout`, {

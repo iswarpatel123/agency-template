@@ -15,7 +15,7 @@ const DEBOUNCE_DELAY = 300;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
-const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'http://braintree-render.onrender.com';
+const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'https://braintree-render.onrender.com';
 
 export async function fetchClientToken(): Promise<string> {
     const res = await fetch(`${RENDER_API_BASE}/client_token`, {

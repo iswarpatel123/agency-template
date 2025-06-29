@@ -1,5 +1,6 @@
 ---
 import AddressForm from "./billing/AddressForm.astro";
+import BillingAddressForm from "./billing/BillingAddressForm.astro";
 import MoneyBack from "../shared/MoneyBack.astro";
 import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 ---
@@ -41,7 +42,6 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
           }
         }}
         onTokenize={(payload) => {
-          // Pass deviceData along with nonce
           document.dispatchEvent(
             new CustomEvent("payment-tokenized", { detail: payload }),
           );
@@ -57,8 +57,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
       Use shipping address as billing address
     </label>
     <div id="billing-address-section" class="billing-address hidden">
-      <h2>Billing Address</h2>
-      <AddressForm type="billing" />
+      <BillingAddressForm />
     </div>
     <button type="submit" class="submit-button"
       >Complete Your Secure Purchase</button
@@ -85,14 +84,16 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
       errorElement.textContent = message;
       errorElement.classList.remove('hidden');
       errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      // Auto-hide after 10 seconds
-      setTimeout(() => {
-        errorElement.classList.add('hidden');
-      }, 10000);
     } else {
       console.error('Global error element not found:', message);
-      alert(message); // Fallback
+      alert(message);
+    }
+  };
+
+  const hideGlobalError = () => {
+    const errorElement = document.getElementById('global-error');
+    if (errorElement) {
+      errorElement.classList.add('hidden');
     }
   };
 
@@ -122,10 +123,12 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
   // Event listeners
   sameAddressCheckbox.addEventListener("change", () => {
     handleBillingAddressVisibility(sameAddressCheckbox, billingAddressSection);
+    hideGlobalError();
   });
 
   submitButton?.addEventListener("click", (event) => {
     event.preventDefault();
+    hideGlobalError();
     document.dispatchEvent(new CustomEvent("tokenize-payment"));
   });
 
@@ -134,9 +137,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     const formOverlay = document.getElementById("form-overlay");
     formOverlay?.classList.remove("hidden");
     
-    // Hide any existing errors
-    const globalError = document.getElementById("global-error");
-    globalError?.classList.add("hidden");
+    hideGlobalError();
 
     try {
       const shippingForm = document.querySelector(
@@ -156,6 +157,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
         const billingForm = document.querySelector(
           'form[data-form-type="billing"]',
         ) as HTMLFormElement;
+        
         if (billingForm) {
           billingAddress = getAddressData(billingForm);
         }
@@ -192,6 +194,10 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     handlePaymentTokenized as unknown as EventListener,
   );
 
+  // Hide error on any user interaction
+  document.addEventListener('input', hideGlobalError);
+  document.addEventListener('click', hideGlobalError);
+
   // Cleanup
   window.addEventListener("unload", () => {
     document.removeEventListener(
@@ -201,6 +207,8 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     document.removeEventListener('show-global-error', (e: CustomEvent) => {
       showGlobalError(e.detail.message);
     });
+    document.removeEventListener('input', hideGlobalError);
+    document.removeEventListener('click', hideGlobalError);
   });
 </script>
 
@@ -222,5 +230,9 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 
   .global-error.hidden {
     display: none;
+  }
+
+  .billing-address {
+    margin-top: 1rem;
   }
 </style>
