@@ -89,3 +89,34 @@ label {
 .arrow {
   font-size: 1.25rem;
 }
+
+
+.address-form {
+  overflow: hidden;
+  border-radius: 0.5rem;
+  padding: 0;
+  border: none;
+}
+
+.title-bar {
+  background: #004236;
+  color: white;
+  padding: 1rem 1.5rem;
+  margin-top: 0;
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.title-bar h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .title-bar {
+    padding: 1rem;
+  }
+}

@@ -10,5 +10,8 @@
     "editor.defaultFormatter": "astro-build.astro-vscode"
   },
   "IDX.aI.enableInlineCompletion": true,
-  "IDX.aI.enableCodebaseIndexing": true
+  "IDX.aI.enableCodebaseIndexing": true,
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  }
 }

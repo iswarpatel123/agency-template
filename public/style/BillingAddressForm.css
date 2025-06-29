@@ -1,0 +1,114 @@
+  .billing-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: white;
+    overflow: hidden;
+  }
+
+  .title-bar {
+    background: #004236;
+    color: white;
+    padding: 1rem 1.5rem;
+  }
+
+  .title-bar h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .billing-address-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .city-state-zip {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .city-state-zip input,
+  .city-state-zip select {
+    width: 100%;
+  }
+
+  .name-fields {
+    display: flex;
+    gap: 1rem;
+  }
+
+  input,
+  select {
+    padding: 0.75rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #f9f9f9;
+    color: #000;
+    font-weight: 600;
+    width: 100%;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  .address-input::placeholder {
+    color: #777;
+    font-weight: 600;
+  }
+
+  input:focus,
+  select:focus {
+    outline: 2px solid #1976D2;
+    outline-offset: 2px;
+  }
+
+  label {
+    color: #000;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 768px) {
+    .title-bar {
+      padding: 1rem;
+    }
+
+    .billing-address-form {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .name-fields {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .city-state-zip {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+
+
+
+
+
+
+
+
