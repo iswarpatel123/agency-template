@@ -5,8 +5,10 @@ import client from 'braintree-web/client';
 import dataCollector from 'braintree-web/data-collector';
 import type { HostedFields, HostedFieldsEvent } from 'braintree-web/hosted-fields';
 import type { DataCollector } from 'braintree-web/data-collector';
+import { fetchClientToken } from '../../../utils/checkout/checkoutService';
 
 interface Props {
+  clientToken: string | null;
   onValidityChange: (isValid: boolean) => void;
   onTokenize: (payload: { nonce: string; deviceData?: string }) => void;
 }
@@ -14,19 +16,6 @@ interface Props {
 const DEBOUNCE_DELAY = 300;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
-
-const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'https://braintree-render.onrender.com';
-
-export async function fetchClientToken(): Promise<string> {
-    const res = await fetch(`${RENDER_API_BASE}/client_token`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-    });
-    if (!res.ok) throw new Error('Failed to fetch client token');
-    const data = await res.json();
-    if (!data.clientToken) throw new Error('No client token in response');
-    return data.clientToken;
-}
 
 export const BraintreeHostedFields = (props: Props) => {
   const [hostedFieldsInstance, setHostedFieldsInstance] = createSignal<HostedFields | null>(null);
@@ -36,6 +25,7 @@ export const BraintreeHostedFields = (props: Props) => {
   const [isLoading, setIsLoading] = createSignal(false);
   const [retryCount, setRetryCount] = createSignal(0);
   const [deviceData, setDeviceData] = createSignal<string>('');
+  const [isInitialized, setIsInitialized] = createSignal(false);
 
   let validityTimeout: number;
   let mountRetryTimeout: number;
@@ -45,10 +35,9 @@ export const BraintreeHostedFields = (props: Props) => {
     document.dispatchEvent(event);
   };
 
-  const initializeHostedFields = async (attempt = 0) => {
+  const initializeHostedFields = async (clientToken: string, attempt = 0) => {
     try {
       setIsLoading(true);
-      const clientToken = await fetchClientToken();
 
       // Create braintree client instance
       const clientInstance = await client.create({
@@ -113,12 +102,13 @@ export const BraintreeHostedFields = (props: Props) => {
       setupEventListeners(instance);
       setError(null);
       setRetryCount(0);
+      setIsInitialized(true);
     } catch (err) {
       console.error('Failed to initialize Braintree:', err);
       if (attempt < MAX_RETRIES) {
         setRetryCount(attempt + 1);
         mountRetryTimeout = window.setTimeout(
-          () => initializeHostedFields(attempt + 1),
+          () => initializeHostedFields(clientToken, attempt + 1),
           RETRY_DELAY * Math.pow(2, attempt)
         );
       } else {
@@ -181,8 +171,27 @@ export const BraintreeHostedFields = (props: Props) => {
     }
   };
 
+  // Initialize when clientToken becomes available
+  createEffect(() => {
+    const token = props.clientToken;
+    if (token && !isInitialized()) {
+      initializeHostedFields(token);
+    }
+  });
+
+  // Fallback: fetch token if not provided
+  createEffect(() => {
+    if (!props.clientToken && !isInitialized()) {
+      fetchClientToken().then(token => {
+        initializeHostedFields(token);
+      }).catch(error => {
+        console.error('Failed to fetch client token:', error);
+        showGlobalError('Failed to initialize payment system. Please refresh and try again.');
+      });
+    }
+  });
+
   onMount(() => {
-    initializeHostedFields();
     const handler = () => handleSubmit();
     document.addEventListener('tokenize-payment', handler);
 

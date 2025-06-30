@@ -33,6 +33,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     <div class="payment-fields-container">
       <BraintreeHostedFields
         client:visible
+        clientToken={null}
         onValidityChange={(isValid) => {
           const submitButton = document.querySelector(
             ".submit-button",
@@ -75,7 +76,11 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     getSelectedItems,
     calculateTotalAmount,
     processBraintreePayment,
+    fetchClientToken,
   } from "../../utils/checkout/checkoutService";
+
+  // State management
+  let clientToken: string | null = null;
 
   // Global error display function
   const showGlobalError = (message: string) => {
@@ -97,10 +102,46 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     }
   };
 
+  // Initialize Braintree when payment form becomes visible
+  const initializeBraintree = async () => {
+    try {
+      // Fetch client token
+      clientToken = await fetchClientToken();
+      
+      // Update the BraintreeHostedFields component with the token
+      const braintreeComponent = document.querySelector('astro-island[component-export="BraintreeHostedFields"]');
+      if (braintreeComponent) {
+        const currentProps = JSON.parse(braintreeComponent.getAttribute('props') || '{}');
+        braintreeComponent.setAttribute('props', JSON.stringify({
+          ...currentProps,
+          clientToken
+        }));
+      }
+      
+    } catch (error) {
+      console.error('Failed to initialize Braintree:', error);
+      showGlobalError('Failed to initialize payment system. Please refresh and try again.');
+    }
+  };
+
+  // Listen for payment form visibility
+  const handlePaymentFormVisible = () => {
+    if (!clientToken) {
+      initializeBraintree();
+    }
+  };
+
+  // Event handlers
+  const handleShowGlobalError = (e: Event) => {
+    const customEvent = e as CustomEvent;
+    showGlobalError(customEvent.detail.message);
+  };
+
   // Listen for global error events
-  document.addEventListener('show-global-error', (e: CustomEvent) => {
-    showGlobalError(e.detail.message);
-  });
+  document.addEventListener('show-global-error', handleShowGlobalError);
+
+  // Listen for payment form becoming visible
+  document.addEventListener('payment-form-visible', handlePaymentFormVisible);
 
   // Form elements
   const form = document.querySelector("#payment-form") as HTMLFormElement;
@@ -132,8 +173,9 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     document.dispatchEvent(new CustomEvent("tokenize-payment"));
   });
 
-  const handlePaymentTokenized = async (e: CustomEvent) => {
-    const { nonce, deviceData } = e.detail;
+  const handlePaymentTokenized = async (e: Event) => {
+    const customEvent = e as CustomEvent;
+    const { nonce, deviceData } = customEvent.detail;
     const formOverlay = document.getElementById("form-overlay");
     formOverlay?.classList.remove("hidden");
     
@@ -189,10 +231,7 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
     }
   };
 
-  document.addEventListener(
-    "payment-tokenized",
-    handlePaymentTokenized as unknown as EventListener,
-  );
+  document.addEventListener("payment-tokenized", handlePaymentTokenized);
 
   // Hide error on any user interaction
   document.addEventListener('input', hideGlobalError);
@@ -200,13 +239,9 @@ import { BraintreeHostedFields } from "./billing/BraintreeHostedFields";
 
   // Cleanup
   window.addEventListener("unload", () => {
-    document.removeEventListener(
-      "payment-tokenized",
-      handlePaymentTokenized as unknown as EventListener,
-    );
-    document.removeEventListener('show-global-error', (e: CustomEvent) => {
-      showGlobalError(e.detail.message);
-    });
+    document.removeEventListener('payment-form-visible', handlePaymentFormVisible);
+    document.removeEventListener("payment-tokenized", handlePaymentTokenized);
+    document.removeEventListener('show-global-error', handleShowGlobalError);
     document.removeEventListener('input', hideGlobalError);
     document.removeEventListener('click', hideGlobalError);
   });

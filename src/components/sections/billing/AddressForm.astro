@@ -159,6 +159,9 @@ const { type } = Astro.props;
             // All fields are valid, proceed to payment
             paymentFormSection.classList.remove("hidden");
             paymentFormSection.scrollIntoView({ behavior: "smooth" });
+            
+            // Trigger Braintree initialization
+            document.dispatchEvent(new CustomEvent("payment-form-visible"));
           } else {
             // Find the first invalid field and show its validation message
             const firstInvalidField = form.querySelector(
