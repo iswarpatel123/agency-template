@@ -94,6 +94,111 @@ export function getAddressData(form: HTMLFormElement): AddressData {
     return address;
 }
 
+// Store complete order data in localStorage for order confirmation
+export function storeOrderData(payload: CheckoutPayload, orderId: string, transactionId: string): void {
+    try {
+        const orderData = {
+            orderId,
+            transactionId,
+            items: payload.items,
+            shippingAddress: payload.shippingAddress,
+            billingAddress: payload.billingAddress,
+            email: payload.email,
+            totalAmount: payload.totalAmount,
+            orderDate: new Date().toISOString(),
+            status: 'confirmed'
+        };
+        
+        localStorage.setItem('order-data', JSON.stringify(orderData));
+        localStorage.setItem('order-completed-at', Date.now().toString());
+    } catch (error) {
+        console.error('Error storing order data:', error);
+    }
+}
+
+// Get complete order data for confirmation page
+export function getOrderData(): {
+    orderId: string | null;
+    transactionId: string | null;
+    items: ShoeSelection[];
+    shippingAddress: AddressData | null;
+    billingAddress: AddressData | null;
+    email: string | null;
+    totalAmount: number | null;
+    orderDate: string | null;
+    status: string | null;
+} {
+    try {
+        const orderData = localStorage.getItem('order-data');
+        if (orderData) {
+            const parsed = JSON.parse(orderData);
+            return {
+                orderId: parsed.orderId || null,
+                transactionId: parsed.transactionId || null,
+                items: parsed.items || [],
+                shippingAddress: parsed.shippingAddress || null,
+                billingAddress: parsed.billingAddress || null,
+                email: parsed.email || null,
+                totalAmount: parsed.totalAmount || null,
+                orderDate: parsed.orderDate || null,
+                status: parsed.status || null
+            };
+        }
+        
+        // Fallback: try to reconstruct from individual localStorage items
+        const selections = localStorage.getItem('selections');
+        const quantity = localStorage.getItem('selectedQuantity');
+        
+        if (selections && quantity) {
+            const parsedSelections = JSON.parse(selections);
+            const items = parsedSelections.map((selection: { color: string; size: string }) => ({
+                color: selection.color,
+                size: selection.size,
+                quantity: 1
+            }));
+            
+            const totalAmount = calculateTotalAmount(parseInt(quantity));
+            
+            return {
+                orderId: `ORD-${Date.now()}`, // Generate fallback order ID
+                transactionId: null,
+                items,
+                shippingAddress: null,
+                billingAddress: null,
+                email: null,
+                totalAmount,
+                orderDate: new Date().toISOString(),
+                status: 'confirmed'
+            };
+        }
+        
+        return {
+            orderId: null,
+            transactionId: null,
+            items: [],
+            shippingAddress: null,
+            billingAddress: null,
+            email: null,
+            totalAmount: null,
+            orderDate: null,
+            status: null
+        };
+    } catch (error) {
+        console.error('Error getting order data:', error);
+        return {
+            orderId: null,
+            transactionId: null,
+            items: [],
+            shippingAddress: null,
+            billingAddress: null,
+            email: null,
+            totalAmount: null,
+            orderDate: null,
+            status: null
+        };
+    }
+}
+
 export function calculateTotalAmount(quantity: number): number {
     const cacheKey = quantity.toString();
     const cached = priceCache.get(cacheKey);
@@ -125,6 +230,7 @@ export async function processBraintreePayment(
     paymentMethodNonce: string,
     deviceData?: string
 ): Promise<{ orderId: string; transactionId: string }> {
+    
     const braintreePayload = {
         name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
         email: payload.email,
@@ -150,11 +256,52 @@ export async function processBraintreePayment(
         if (!data.orderId || !data.transactionId) {
             throw new Error('Checkout succeeded but failed to get order details.');
         }
+        
+        // Store complete order data for confirmation page
+        storeOrderData(payload, data.orderId, data.transactionId);
+        
         return {
             orderId: data.orderId,
             transactionId: data.transactionId,
         };
     } catch (error: any) {
         throw error;
+    }
+}
+
+// Clear checkout data after successful order completion
+export function clearCheckoutData(): void {
+    try {
+        const keysToRemove = [
+            'selectedQuantity',
+            'selections',
+            'shoeSelection'
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+        });
+        
+        console.log('Checkout data cleared successfully');
+    } catch (error) {
+        console.error('Error clearing checkout data:', error);
+    }
+}
+
+// Clear order data (call this when user starts a new order)
+export function clearOrderData(): void {
+    try {
+        const keysToRemove = [
+            'order-data',
+            'order-completed-at'
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+        });
+        
+        console.log('Order data cleared successfully');
+    } catch (error) {
+        console.error('Error clearing order data:', error);
     }
 }
