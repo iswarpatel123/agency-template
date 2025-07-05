@@ -1,5 +1,5 @@
 ---
-import { solutions } from "../../utils/data/solutions";
+import { solutions } from "../../../utils/data/solutions";
 
 type SolutionProps = {
   title: string;
@@ -24,10 +24,10 @@ const { className } = Astro.props;
     solutions.list.map((solution: SolutionProps, index: number) => {
       const oddIndex = index % 2 === 0;
       const flexRow = oddIndex ? "midmd:flex-row-reverse" : "midmd:flex-row";
-      const imgAlign = oddIndex ? "midmd:justify-start pl-0" : "midmd:justify-end pr-0";
-      const bgColor = oddIndex
-        ? "bg-orange-100"
-        : "bg-transparent";
+      const imgAlign = oddIndex
+        ? "midmd:justify-start pl-0"
+        : "midmd:justify-end pr-0";
+      const bgColor = oddIndex ? "bg-orange-100" : "bg-transparent";
       return (
         <div class={`w-100 py-10 md:py-16 ${bgColor}`}>
           <div
@@ -38,13 +38,13 @@ const { className } = Astro.props;
                 <h2 class="text-2xl/tight sm:text-3xl/tight font-bold text-heading-1">
                   {solution.title}
                 </h2>
-                <p class="text-lg text-gray-600">
-                  {solution.solution}
-                </p>
+                <p class="text-lg text-gray-600">{solution.solution}</p>
               </div>
             </div>
 
-            <div class={`max-w-md mx-auto midmd:max-w-none flex-1 flex w-11/12 midmd:w-6/12 lg:w-7/12 midmd:h-auto ${imgAlign}`}>
+            <div
+              class={`max-w-md mx-auto midmd:max-w-none flex-1 flex w-11/12 midmd:w-6/12 lg:w-7/12 midmd:h-auto ${imgAlign}`}
+            >
               <div class="rounded-[32px] border border-black overflow-hidden w-[400px]">
                 <img
                   src={solution.img}

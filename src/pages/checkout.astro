@@ -2,12 +2,12 @@
 import Layout from "../layouts/Layout-Checkout.astro";
 import QuantitySelector from "../components/sections/quantity/QuantitySelector.astro";
 import ColorSizeSelector from "../components/sections/colorsize/ColorSizeSelector.tsx";
-import PaymentInfo from "../components/sections/PaymentInfo.astro";
-import Countdown from "../components/sections/Countdown.astro";
+import PaymentInfo from "../components/sections/payment/PaymentInfo.astro";
+import Countdown from "../components/sections/countdown/Countdown.astro";
 import Footer from "../layouts/Footer.astro";
 import ProductInfo from "../components/sections/quantity/ProductInfo.astro";
-import PaymentForm from "../components/sections/PaymentForm.astro";
-import AddressForm from "../components/sections/billing/AddressForm.astro";
+import PaymentForm from "../components/sections/payment/PaymentForm.astro";
+import AddressForm from "../components/sections/address/AddressForm.astro";
 ---
 
 <Layout title="Checkout">
@@ -22,7 +22,10 @@ import AddressForm from "../components/sections/billing/AddressForm.astro";
               <div id="colorSizeSection" class="hidden">
                 <ColorSizeSelector client:visible />
               </div>
-              <div id="addressFormSection" class="hidden mt-8 bg-white rounded-lg p-6 shadow-sm">
+              <div
+                id="addressFormSection"
+                class="hidden mt-8 bg-white rounded-lg shadow-sm"
+              >
                 <AddressForm type="shipping" />
               </div>
               <div class="mt-8 hidden" id="paymentFormSection">

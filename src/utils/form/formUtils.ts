@@ -11,10 +11,14 @@ export const handleBillingAddressVisibility = debounce((
   billingAddressSection.setAttribute("aria-hidden", isHidden.toString());
 
   // Handle required attributes on billing fields
-  const billingFields = billingAddressSection.querySelectorAll("input");
+  const billingFields = billingAddressSection.querySelectorAll("input, select");
   billingFields.forEach(field => {
-    if (field instanceof HTMLInputElement) {
+    if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) {
       field.required = !isHidden;
+      // Clear validation state when hiding
+      if (isHidden) {
+        field.setCustomValidity('');
+      }
     }
   });
 }, 100);
@@ -39,13 +43,22 @@ export const handleSecurityInfoPopup = debounce((
     }
   };
 
+  const escapeHandler = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && !speechBubble.hidden) {
+      speechBubble.hidden = true;
+      speechBubble.setAttribute("aria-hidden", "true");
+    }
+  };
+
   // Clean up old listeners
   lockIcon.removeEventListener("click", clickHandler);
   document.removeEventListener("click", documentClickHandler);
+  document.removeEventListener("keydown", escapeHandler);
 
   // Add new listeners
   lockIcon.addEventListener("click", clickHandler);
   document.addEventListener("click", documentClickHandler);
+  document.addEventListener("keydown", escapeHandler);
 }, 100);
 
 export function formatCardNumber(input: HTMLInputElement): void {
@@ -59,6 +72,18 @@ export function showGlobalError(message: string): void {
   document.dispatchEvent(event);
 }
 
+// Enhanced form validation with better error handling
+export function validateForm(form: HTMLFormElement): { isValid: boolean; firstInvalidField?: HTMLElement } {
+  const isValid = form.checkValidity();
+  
+  if (!isValid) {
+    const firstInvalid = form.querySelector(':invalid') as HTMLInputElement;
+    return { isValid: false, firstInvalidField: firstInvalid };
+  }
+  
+  return { isValid: true };
+}
+
 export async function handleFormSubmission(event: SubmitEvent): Promise<
   | { status: "success"; url: string }
   | { status: "error"; message: string }
@@ -67,17 +92,19 @@ export async function handleFormSubmission(event: SubmitEvent): Promise<
     event.preventDefault();
 
     const form = event.target as HTMLFormElement;
-    
-    // Use HTML5 form validation
-    const isValid = form.checkValidity();
+    const validation = validateForm(form);
 
-    if (!isValid) {
-      // Find first invalid input and show native validation message
-      const firstInvalid = form.querySelector(':invalid') as HTMLInputElement;
-      if (firstInvalid) {
-        firstInvalid.focus();
-        firstInvalid.reportValidity();
+    if (!validation.isValid && validation.firstInvalidField) {
+      validation.firstInvalidField.focus();
+      validation.firstInvalidField.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+      
+      if ('reportValidity' in validation.firstInvalidField) {
+        (validation.firstInvalidField as HTMLInputElement).reportValidity();
       }
+      
       return { status: "error", message: "Please fix the validation errors" };
     }
 
@@ -89,4 +116,18 @@ export async function handleFormSubmission(event: SubmitEvent): Promise<
     showGlobalError(errorMessage);
     return { status: "error", message: errorMessage };
   }
+}
+
+// Utility for smooth scrolling with better browser support
+export function smoothScrollTo(element: HTMLElement, options: ScrollIntoViewOptions = {}) {
+  const defaultOptions: ScrollIntoViewOptions = {
+    behavior: 'smooth',
+    block: 'start',
+    ...options
+  };
+  
+  // Use requestAnimationFrame for better performance
+  requestAnimationFrame(() => {
+    element.scrollIntoView(defaultOptions);
+  });
 }

@@ -288,6 +288,7 @@ const ColorSizeSelector = (): JSX.Element => {
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
+          transition: background-color 0.2s;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 

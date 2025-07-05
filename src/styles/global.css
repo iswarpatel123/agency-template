@@ -1,20 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 
-html, body {
+html,
+body {
   font-family: 'Poppins', sans-serif;
-}
-
-.city-state-zip {
-  display: flex;
-  gap: 0.5rem;
-}
-
-@media (max-width: 600px) {
-  .city-state-zip {
-    flex-wrap: wrap;
-  }
-
-  .city-state-zip input {
-    width: calc(33.33% - 0.35rem);
-  }
 }
