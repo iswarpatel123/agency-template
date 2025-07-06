@@ -83,3 +83,40 @@ label {
 .arrow {
   font-size: 1.25rem;
 }
+
+.address-form-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: white;
+  overflow: hidden;
+}
+
+.title-bar {
+  background: #004236;
+  color: white;
+  padding: 1rem 1.5rem;
+  margin: 0;
+}
+
+.title-bar h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.address-form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .title-bar {
+    padding: 1rem;
+  }
+
+  .address-form {
+    padding: 1rem;
+  }
+}

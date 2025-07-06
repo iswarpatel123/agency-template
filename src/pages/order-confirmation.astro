@@ -11,15 +11,26 @@ import Footer from "../layouts/Footer.astro";
         <!-- Success Header -->
         <div class="success-header">
           <div class="success-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" fill="#10B981"/>
-              <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="12" cy="12" r="10" fill="#10B981"></circle>
+              <path
+                d="M9 12l2 2 4-4"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
             </svg>
           </div>
           <h1>Thank you for your order!</h1>
           <p class="confirmation-message">
-            Your order has been confirmed and will be shipped soon. 
-            A confirmation email has been sent to your email address.
+            Your order has been confirmed and will be shipped soon. A
+            confirmation email has been sent to your email address.
           </p>
         </div>
 
@@ -27,23 +38,23 @@ import Footer from "../layouts/Footer.astro";
           <!-- Order Summary -->
           <div class="order-summary-card">
             <h2>Order Summary</h2>
-            
+
             <div class="order-info">
               <div class="info-row">
                 <span class="label">Order number:</span>
                 <span class="value" id="order-number">Loading...</span>
               </div>
-              
+
               <div class="info-row">
                 <span class="label">Order date:</span>
                 <span class="value" id="order-date">Loading...</span>
               </div>
-              
+
               <div class="info-row">
                 <span class="label">Estimated delivery:</span>
                 <span class="value" id="delivery-date">Loading..</span>
               </div>
-              
+
               <div class="info-row">
                 <span class="label">Delivery method:</span>
                 <span class="value">Standard shipping (FREE)</span>
@@ -85,10 +96,14 @@ import Footer from "../layouts/Footer.astro";
             <div id="shipping-address">
               <div class="loading-message">Loading shipping details...</div>
             </div>
-            
+
             <div class="tracking-info">
               <h3>Track your order</h3>
-              <p>You'll receive a tracking number via email once your order ships. You can also track your order status by visiting our order tracking page.</p>
+              <p>
+                You'll receive a tracking number via email once your order
+                ships. You can also track your order status by visiting our
+                order tracking page.
+              </p>
               <button class="track-order-btn">Track Order</button>
             </div>
           </div>
@@ -100,32 +115,71 @@ import Footer from "../layouts/Footer.astro";
           <div class="steps-grid">
             <div class="step">
               <div class="step-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke="#6B7280"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
                 </svg>
               </div>
               <h4>Order Confirmation</h4>
-              <p>You'll receive an email confirmation with your order details and tracking information.</p>
+              <p>
+                You'll receive an email confirmation with your order details and
+                tracking information.
+              </p>
             </div>
-            
+
             <div class="step">
               <div class="step-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2m4-2v6m0 0l-2-2m2 2l2-2" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2m4-2v6m0 0l-2-2m2 2l2-2"
+                    stroke="#6B7280"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
                 </svg>
               </div>
               <h4>Order Processing</h4>
               <p>We'll prepare your order for shipment within 24-48 hours.</p>
             </div>
-            
+
             <div class="step">
               <div class="step-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    stroke="#6B7280"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
                 </svg>
               </div>
               <h4>Shipping Updates</h4>
-              <p>Track your package with the tracking number we'll send you via email.</p>
+              <p>
+                Track your package with the tracking number we'll send you via
+                email.
+              </p>
             </div>
           </div>
         </div>
@@ -133,7 +187,10 @@ import Footer from "../layouts/Footer.astro";
         <!-- Customer Support -->
         <div class="customer-support">
           <h2>Need help?</h2>
-          <p>If you have any questions about your order, please don't hesitate to contact our customer support team.</p>
+          <p>
+            If you have any questions about your order, please don't hesitate to
+            contact our customer support team.
+          </p>
           <div class="support-actions">
             <a href="/contact" class="support-btn">Contact Support</a>
             <a href="/returns" class="support-btn secondary">Return Policy</a>
@@ -142,7 +199,9 @@ import Footer from "../layouts/Footer.astro";
 
         <!-- Continue Shopping -->
         <div class="continue-shopping">
-          <a href="/" class="continue-btn" id="continue-shopping-btn">Continue Shopping</a>
+          <a href="/" class="continue-btn" id="continue-shopping-btn"
+            >Continue Shopping</a
+          >
         </div>
       </div>
     </Container>
@@ -187,7 +246,7 @@ import Footer from "../layouts/Footer.astro";
 
   .confirmation-message {
     font-size: 1.125rem;
-    color: #6B7280;
+    color: #6b7280;
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
@@ -214,7 +273,7 @@ import Footer from "../layouts/Footer.astro";
     font-weight: 600;
     color: #111827;
     margin-bottom: 1.5rem;
-    border-bottom: 2px solid #E5E7EB;
+    border-bottom: 2px solid #e5e7eb;
     padding-bottom: 0.5rem;
   }
 
@@ -227,7 +286,7 @@ import Footer from "../layouts/Footer.astro";
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 0;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid #f3f4f6;
   }
 
   .info-row:last-child {
@@ -235,7 +294,7 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .label {
-    color: #6B7280;
+    color: #6b7280;
     font-weight: 500;
   }
 
@@ -256,7 +315,7 @@ import Footer from "../layouts/Footer.astro";
     align-items: center;
     gap: 1rem;
     padding: 1rem 0;
-    border-bottom: 1px solid #F3F4F6;
+    border-bottom: 1px solid #f3f4f6;
   }
 
   .order-item:last-child {
@@ -268,7 +327,7 @@ import Footer from "../layouts/Footer.astro";
     height: 60px;
     object-fit: cover;
     border-radius: 0.5rem;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
   }
 
   .item-details h4 {
@@ -279,7 +338,7 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .item-details p {
-    color: #6B7280;
+    color: #6b7280;
     font-size: 0.875rem;
     margin: 0.125rem 0;
   }
@@ -287,7 +346,7 @@ import Footer from "../layouts/Footer.astro";
   .pricing-summary {
     margin-top: 2rem;
     padding-top: 1rem;
-    border-top: 2px solid #E5E7EB;
+    border-top: 2px solid #e5e7eb;
   }
 
   .price-row {
@@ -300,18 +359,18 @@ import Footer from "../layouts/Footer.astro";
   .price-row.total {
     font-weight: 700;
     font-size: 1.125rem;
-    border-top: 1px solid #E5E7EB;
+    border-top: 1px solid #e5e7eb;
     margin-top: 0.5rem;
     padding-top: 1rem;
     color: #111827;
   }
 
   .shipping-address {
-    background: #F9FAFB;
+    background: #f9fafb;
     padding: 1rem;
     border-radius: 0.5rem;
     margin-bottom: 1.5rem;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
   }
 
   .address-line {
@@ -331,13 +390,13 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .tracking-info p {
-    color: #6B7280;
+    color: #6b7280;
     margin-bottom: 1rem;
     line-height: 1.5;
   }
 
   .track-order-btn {
-    background: #1F2937;
+    background: #1f2937;
     color: white;
     padding: 0.75rem 1.5rem;
     border: none;
@@ -381,7 +440,7 @@ import Footer from "../layouts/Footer.astro";
     margin: 0 auto 1rem;
     width: 48px;
     height: 48px;
-    background: #F3F4F6;
+    background: #f3f4f6;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -395,7 +454,7 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .step p {
-    color: #6B7280;
+    color: #6b7280;
     font-size: 0.875rem;
     line-height: 1.5;
   }
@@ -417,7 +476,7 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .customer-support p {
-    color: #6B7280;
+    color: #6b7280;
     margin-bottom: 1.5rem;
     line-height: 1.6;
   }
@@ -437,7 +496,7 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .support-btn:not(.secondary) {
-    background: #1F2937;
+    background: #1f2937;
     color: white;
   }
 
@@ -446,13 +505,13 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .support-btn.secondary {
-    background: #F3F4F6;
+    background: #f3f4f6;
     color: #374151;
-    border: 1px solid #D1D5DB;
+    border: 1px solid #d1d5db;
   }
 
   .support-btn.secondary:hover {
-    background: #E5E7EB;
+    background: #e5e7eb;
   }
 
   .continue-shopping {
@@ -463,7 +522,7 @@ import Footer from "../layouts/Footer.astro";
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: #FBBF24;
+    background: #fbbf24;
     color: #000;
     padding: 1rem 2rem;
     border-radius: 0.5rem;
@@ -474,24 +533,24 @@ import Footer from "../layouts/Footer.astro";
   }
 
   .continue-btn:hover {
-    background: #F59E0B;
+    background: #f59e0b;
   }
 
   .loading-message,
   .no-data-message {
     text-align: center;
     padding: 2rem;
-    color: #6B7280;
+    color: #6b7280;
     font-style: italic;
   }
 
   .error-message {
     text-align: center;
     padding: 2rem;
-    color: #DC2626;
-    background: #FEF2F2;
+    color: #dc2626;
+    background: #fef2f2;
     border-radius: 0.5rem;
-    border: 1px solid #FECACA;
+    border: 1px solid #fecaca;
   }
 
   @media (max-width: 768px) {
@@ -528,102 +587,112 @@ import Footer from "../layouts/Footer.astro";
 
 <script>
   // Import the checkout service functions
-  import { getOrderData, clearCheckoutData, clearOrderData } from '../utils/checkout/checkoutService';
+  import {
+    getOrderData,
+    clearCheckoutData,
+  } from "../utils/checkout/checkoutService";
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     try {
       // Get order data from localStorage (not URL)
       const orderData = getOrderData();
-      
+
       // Populate order information
       populateOrderInfo(orderData);
       populateOrderItems(orderData);
       populateShippingAddress(orderData);
-      
+
       // Set up continue shopping button to clear checkout data
-      const continueBtn = document.getElementById('continue-shopping-btn');
+      const continueBtn = document.getElementById("continue-shopping-btn");
       if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
+        continueBtn.addEventListener("click", () => {
           // Clear checkout data when user continues shopping
           clearCheckoutData();
         });
       }
-      
     } catch (error) {
-      console.error('Error loading order confirmation:', error);
+      console.error("Error loading order confirmation:", error);
       showErrorState();
     }
   });
 
   function populateOrderInfo(orderData: any) {
-    const orderNumberEl = document.getElementById('order-number');
-    const orderDateEl = document.getElementById('order-date');
-    const deliveryDateEl = document.getElementById('delivery-date');
-    
+    const orderNumberEl = document.getElementById("order-number");
+    const orderDateEl = document.getElementById("order-date");
+    const deliveryDateEl = document.getElementById("delivery-date");
+
     if (orderNumberEl) {
       orderNumberEl.textContent = orderData.orderId || `ORD-${Date.now()}`;
     }
-    
+
     if (orderDateEl) {
-      const orderDate = orderData.orderDate ? new Date(orderData.orderDate) : new Date();
-      orderDateEl.textContent = orderDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+      const orderDate = orderData.orderDate
+        ? new Date(orderData.orderDate)
+        : new Date();
+      orderDateEl.textContent = orderDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
     }
-    
+
     if (deliveryDateEl) {
       const deliveryDate = new Date();
       deliveryDate.setDate(deliveryDate.getDate() + 7);
-      deliveryDateEl.textContent = deliveryDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric'
+      deliveryDateEl.textContent = deliveryDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
       });
     }
   }
 
   function populateOrderItems(orderData: any) {
-    const orderItemsList = document.getElementById('order-items-list');
-    const subtotalElement = document.getElementById('subtotal-amount');
-    const totalElement = document.getElementById('total-amount');
-    
+    const orderItemsList = document.getElementById("order-items-list");
+    const subtotalElement = document.getElementById("subtotal-amount");
+    const totalElement = document.getElementById("total-amount");
+
     if (!orderItemsList) return;
-    
+
     if (!orderData.items || orderData.items.length === 0) {
-      orderItemsList.innerHTML = '<div class="no-data-message">No order items found. Please contact support if you need assistance.</div>';
+      orderItemsList.innerHTML =
+        '<div class="no-data-message">No order items found. Please contact support if you need assistance.</div>';
       return;
     }
-    
+
     // Clear loading message
-    orderItemsList.innerHTML = '';
-    
+    orderItemsList.innerHTML = "";
+
     // Color to image mapping
     const colorImages: Record<string, string> = {
-      'Black': 'https://ae-pic-a1.aliexpress-media.com/kf/Sa97cb0ece6b94cbb8f31155e98fc1c03V.jpg_640x640.jpg_.webp',
-      'Pink': 'https://ae-pic-a1.aliexpress-media.com/kf/S899d2197729b4fd394499cd32e08b0696.jpg_640x640.jpg_.webp',
-      'White': 'https://ae-pic-a1.aliexpress-media.com/kf/S31dfedd525514b90b956c5f8343bf2f8z.jpg_640x640.jpg_.webp'
+      Black:
+        "https://ae-pic-a1.aliexpress-media.com/kf/Sa97cb0ece6b94cbb8f31155e98fc1c03V.jpg_640x640.jpg_.webp",
+      Pink: "https://ae-pic-a1.aliexpress-media.com/kf/S899d2197729b4fd394499cd32e08b0696.jpg_640x640.jpg_.webp",
+      White:
+        "https://ae-pic-a1.aliexpress-media.com/kf/S31dfedd525514b90b956c5f8343bf2f8z.jpg_640x640.jpg_.webp",
     };
-    
+
     // Pricing information
-    const prices: Record<number, { pricePerPair: number; originalPrice: number }> = {
+    const prices: Record<
+      number,
+      { pricePerPair: number; originalPrice: number }
+    > = {
       1: { pricePerPair: 69.99, originalPrice: 139.99 },
       2: { pricePerPair: 62.99, originalPrice: 139.99 },
-      3: { pricePerPair: 55.99, originalPrice: 139.99 }
+      3: { pricePerPair: 55.99, originalPrice: 139.99 },
     };
-    
+
     const quantity = orderData.items.length;
     const priceInfo = prices[quantity] || prices[1];
-    
+
     // Display each item
     orderData.items.forEach((item: any) => {
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'order-item';
-      
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "order-item";
+
       itemDiv.innerHTML = `
-        <img src="${colorImages[item.color] || colorImages['Black']}" alt="FootBound X1" class="item-image" />
+        <img src="${colorImages[item.color] || colorImages["Black"]}" alt="FootBound X1" class="item-image" />
         <div class="item-details">
           <h4>FootBound X1 - ${item.color}</h4>
           <p>Size: MEN ${item.size} / WOMEN ${Number(item.size) + 1.5}</p>
@@ -631,13 +700,14 @@ import Footer from "../layouts/Footer.astro";
           <p>Price: $${priceInfo.pricePerPair.toFixed(2)}</p>
         </div>
       `;
-      
+
       orderItemsList.appendChild(itemDiv);
     });
-    
+
     // Update pricing
-    const totalAmount = orderData.totalAmount || (quantity * priceInfo.pricePerPair);
-    
+    const totalAmount =
+      orderData.totalAmount || quantity * priceInfo.pricePerPair;
+
     if (subtotalElement) {
       subtotalElement.textContent = `$${totalAmount.toFixed(2)}`;
     }
@@ -647,11 +717,11 @@ import Footer from "../layouts/Footer.astro";
   }
 
   function populateShippingAddress(orderData: any) {
-    const shippingAddressElement = document.getElementById('shipping-address');
+    const shippingAddressElement = document.getElementById("shipping-address");
     if (!shippingAddressElement) return;
-    
+
     const address = orderData.shippingAddress;
-    
+
     if (!address || !address.address1) {
       shippingAddressElement.innerHTML = `
         <div class="shipping-address">
@@ -660,41 +730,42 @@ import Footer from "../layouts/Footer.astro";
       `;
       return;
     }
-    
+
     let addressHTML = `
       <div class="shipping-address">
         <div class="address-line"><strong>${address.firstName} ${address.lastName}</strong></div>
     `;
-    
+
     if (orderData.email) {
       addressHTML += `<div class="address-line">${orderData.email}</div>`;
     }
-    
+
     addressHTML += `<div class="address-line">${address.address1}</div>`;
-    
+
     if (address.address2) {
       addressHTML += `<div class="address-line">${address.address2}</div>`;
     }
-    
+
     addressHTML += `
         <div class="address-line">${address.city}, ${address.state} ${address.zipCode}</div>
-        <div class="address-line">${address.country || 'United States'}</div>
+        <div class="address-line">${address.country || "United States"}</div>
       </div>
     `;
-    
+
     shippingAddressElement.innerHTML = addressHTML;
   }
 
   function showErrorState() {
-    const orderItemsList = document.getElementById('order-items-list');
-    const shippingAddressElement = document.getElementById('shipping-address');
-    
-    const errorMessage = '<div class="error-message">Unable to load order details. Please contact support for assistance.</div>';
-    
+    const orderItemsList = document.getElementById("order-items-list");
+    const shippingAddressElement = document.getElementById("shipping-address");
+
+    const errorMessage =
+      '<div class="error-message">Unable to load order details. Please contact support for assistance.</div>';
+
     if (orderItemsList) {
       orderItemsList.innerHTML = errorMessage;
     }
-    
+
     if (shippingAddressElement) {
       shippingAddressElement.innerHTML = errorMessage;
     }

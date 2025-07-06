@@ -37,7 +37,7 @@ Object.entries(securityHeaders).forEach(([header, value]) => {
 		<link rel="preconnect" href="https://assets.braintreegateway.com" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<script define:vars={{ BRAINTREE_TOKENIZATION_KEY }}>
+		<script define:vars={{ BRAINTREE_TOKENIZATION_KEY }} is:inline>
 			// Initialize Braintree key in a more secure way
 			Object.defineProperty(window, "BRAINTREE_TOKENIZATION_KEY", {
 				value: BRAINTREE_TOKENIZATION_KEY,

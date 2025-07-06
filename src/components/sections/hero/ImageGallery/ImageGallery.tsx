@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { createSignal, onMount } from 'solid-js';
+import { createSignal } from 'solid-js';
 import type { ImageGalleryProps } from './types';
 import { ScrollButton } from './ScrollButton';
 import { Thumbnail } from './Thumbnail';

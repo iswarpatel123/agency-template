@@ -2,16 +2,19 @@
 interface Props {
   text: string;
   author: string;
-  rating: number;
   image: string;
 }
 
-const { text, author, rating, image } = Astro.props;
+const { text, author, image } = Astro.props;
 const ratingImageUrl = "/assets/shared/stars-5.svg";
 ---
 
 <div class="flex items-start gap-4 bg-white/50 rounded-lg mt-6 lg:pr-0 lg:pl-0">
-  <img src={image} alt={author} class="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+  <img
+    src={image}
+    alt={author}
+    class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+  />
   <div class="flex-1">
     <div class="mb-1">
       <img src={ratingImageUrl} alt="5 out of 5 stars" class="h-4" />
@@ -19,7 +22,7 @@ const ratingImageUrl = "/assets/shared/stars-5.svg";
     <p class="text-sm text-gray-700 mb-2 text-left">{text}</p>
     <div class="flex items-center gap-2">
       <span class="font-semibold text-sm">{author}</span>
-      <img 
+      <img
         src="/assets/shared/shield-checkmark.svg"
         alt="Verified"
         class="h-4 w-4"

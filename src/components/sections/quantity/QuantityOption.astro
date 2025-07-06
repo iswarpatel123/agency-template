@@ -4,31 +4,38 @@ interface Props {
   pricePerPair: number;
   originalPrice: number;
   savePercentage: number;
-  selected?: boolean;
   badge?: string;
 }
 
-const { pairs, pricePerPair, originalPrice, savePercentage, selected = false, badge = '' } = Astro.props;
+const {
+  pairs,
+  pricePerPair,
+  originalPrice,
+  savePercentage,
+  badge = "",
+} = Astro.props;
 ---
 
 <label class="option">
   <div class="radio">
-    <input
-      type="radio"
-      name="quantity"
-      value={pairs}
-    />
+    <input type="radio" name="quantity" value={pairs} />
     <span class="radio-custom"></span>
   </div>
-  
+
   <div class="content">
     <div class="left">
-      <h3>{pairs} {pairs === 1 ? 'Pair' : 'Pairs'}</h3>
+      <h3>{pairs} {pairs === 1 ? "Pair" : "Pairs"}</h3>
       <p class="save"><strong>Save {savePercentage}%</strong></p>
     </div>
-    
+
     <div class="right">
-      {badge && <span class="badge"><span class="star">★</span> <strong>{badge}</strong></span>}
+      {
+        badge && (
+          <span class="badge">
+            <span class="star">★</span> <strong>{badge}</strong>
+          </span>
+        )
+      }
       <p class="price">${pricePerPair}/ea</p>
       <p class="original-price">${originalPrice * pairs}</p>
     </div>

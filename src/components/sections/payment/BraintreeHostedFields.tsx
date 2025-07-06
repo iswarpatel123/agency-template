@@ -21,7 +21,6 @@ export const BraintreeHostedFields = (props: Props) => {
   const [hostedFieldsInstance, setHostedFieldsInstance] = createSignal<HostedFields | null>(null);
   const [dataCollectorInstance, setDataCollectorInstance] = createSignal<DataCollector | null>(null);
   const [isValid, setIsValid] = createSignal(false);
-  const [error, setError] = createSignal<string | null>(null);
   const [isLoading, setIsLoading] = createSignal(false);
   const [retryCount, setRetryCount] = createSignal(0);
   const [deviceData, setDeviceData] = createSignal<string>('');
@@ -100,7 +99,6 @@ export const BraintreeHostedFields = (props: Props) => {
 
       setHostedFieldsInstance(instance);
       setupEventListeners(instance);
-      setError(null);
       setRetryCount(0);
       setIsInitialized(true);
     } catch (err) {
@@ -132,8 +130,6 @@ export const BraintreeHostedFields = (props: Props) => {
         setIsValid(formValid);
       }, DEBOUNCE_DELAY);
     });
-
-    instance.on('focus', () => setError(null));
   };
 
   const handleSubmit = async () => {
@@ -143,7 +139,6 @@ export const BraintreeHostedFields = (props: Props) => {
     setIsLoading(true);
     try {
       const { nonce } = await instance.tokenize();
-      setError(null);
 
       const currentDeviceData = deviceData();
       console.log('Submitting payment with device data:', currentDeviceData ? 'Present' : 'Missing');
