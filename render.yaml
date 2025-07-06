@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: agency-template
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    # DO NOT add a startCommand for static sites
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: NODE_ENV
+        value: production
+      # Add your API base URL as an environment variable if needed
+      # - key: PUBLIC_RENDER_API_BASE
+      #   value: https://braintree-render.onrender.com

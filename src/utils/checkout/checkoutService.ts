@@ -212,8 +212,8 @@ export function calculateTotalAmount(quantity: number): number {
     return total;
 }
 
-// Hardcoded API base URL
-const RENDER_API_BASE = 'https://braintree-render.onrender.com';
+// Get API base URL from environment variable or use default
+const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'https://braintree-render.onrender.com';
 
 export async function fetchClientToken(): Promise<string> {
     const res = await fetch(`${RENDER_API_BASE}/client_token`, {

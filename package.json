@@ -4,9 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
-    "build": "npm run typecheck && npm run lint && astro build",
-    "preview": "astro preview",
+    "start": "astro dev --host 0.0.0.0 --port ${PORT:-4321}",
+    "build": "astro build",
+    "build:full": "npm run typecheck && npm run lint && astro build",
+    "preview": "astro preview --host 0.0.0.0 --port ${PORT:-4321}",
     "astro": "astro",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx,.astro --max-warnings=100",
