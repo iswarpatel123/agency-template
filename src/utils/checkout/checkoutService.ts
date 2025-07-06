@@ -108,7 +108,7 @@ export function storeOrderData(payload: CheckoutPayload, orderId: string, transa
             orderDate: new Date().toISOString(),
             status: 'confirmed'
         };
-        
+
         localStorage.setItem('order-data', JSON.stringify(orderData));
         localStorage.setItem('order-completed-at', Date.now().toString());
     } catch (error) {
@@ -144,11 +144,11 @@ export function getOrderData(): {
                 status: parsed.status || null
             };
         }
-        
+
         // Fallback: try to reconstruct from individual localStorage items
         const selections = localStorage.getItem('selections');
         const quantity = localStorage.getItem('selectedQuantity');
-        
+
         if (selections && quantity) {
             const parsedSelections = JSON.parse(selections);
             const items = parsedSelections.map((selection: { color: string; size: string }) => ({
@@ -156,9 +156,9 @@ export function getOrderData(): {
                 size: selection.size,
                 quantity: 1
             }));
-            
+
             const totalAmount = calculateTotalAmount(parseInt(quantity));
-            
+
             return {
                 orderId: `ORD-${Date.now()}`, // Generate fallback order ID
                 transactionId: null,
@@ -171,7 +171,7 @@ export function getOrderData(): {
                 status: 'confirmed'
             };
         }
-        
+
         return {
             orderId: null,
             transactionId: null,
@@ -212,7 +212,8 @@ export function calculateTotalAmount(quantity: number): number {
     return total;
 }
 
-const RENDER_API_BASE = import.meta.env.PUBLIC_RENDER_API_BASE || 'https://braintree-render.onrender.com';
+// Hardcoded API base URL
+const RENDER_API_BASE = 'https://braintree-render.onrender.com';
 
 export async function fetchClientToken(): Promise<string> {
     const res = await fetch(`${RENDER_API_BASE}/client_token`, {
@@ -230,7 +231,7 @@ export async function processBraintreePayment(
     paymentMethodNonce: string,
     deviceData?: string
 ): Promise<{ orderId: string; transactionId: string }> {
-    
+
     const braintreePayload = {
         name: `${payload.shippingAddress.firstName} ${payload.shippingAddress.lastName}`,
         email: payload.email,
@@ -243,30 +244,26 @@ export async function processBraintreePayment(
         deviceData: deviceData || '',
     };
 
-    try {
-        const res = await fetch(`${RENDER_API_BASE}/checkout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(braintreePayload),
-        });
-        const data = await res.json();
-        if (!data.ok) {
-            throw new Error(data.error ? `error: ${data.error}` : data.message || 'Checkout failed');
-        }
-        if (!data.orderId || !data.transactionId) {
-            throw new Error('Checkout succeeded but failed to get order details.');
-        }
-        
-        // Store complete order data for confirmation page
-        storeOrderData(payload, data.orderId, data.transactionId);
-        
-        return {
-            orderId: data.orderId,
-            transactionId: data.transactionId,
-        };
-    } catch (error: any) {
-        throw error;
+    const res = await fetch(`${RENDER_API_BASE}/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(braintreePayload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(data.error ? `error: ${data.error}` : data.message || 'Checkout failed');
     }
+    if (!data.orderId || !data.transactionId) {
+        throw new Error('Checkout succeeded but failed to get order details.');
+    }
+
+    // Store complete order data for confirmation page
+    storeOrderData(payload, data.orderId, data.transactionId);
+
+    return {
+        orderId: data.orderId,
+        transactionId: data.transactionId,
+    };
 }
 
 // Clear checkout data after successful order completion
@@ -277,11 +274,11 @@ export function clearCheckoutData(): void {
             'selections',
             'shoeSelection'
         ];
-        
+
         keysToRemove.forEach(key => {
             localStorage.removeItem(key);
         });
-        
+
         console.log('Checkout data cleared successfully');
     } catch (error) {
         console.error('Error clearing checkout data:', error);
@@ -295,11 +292,11 @@ export function clearOrderData(): void {
             'order-data',
             'order-completed-at'
         ];
-        
+
         keysToRemove.forEach(key => {
             localStorage.removeItem(key);
         });
-        
+
         console.log('Order data cleared successfully');
     } catch (error) {
         console.error('Error clearing order data:', error);

@@ -19,15 +19,15 @@ export const products: Product[] = [
         colors: [
             {
                 name: "Black",
-                image: "https://ae-pic-a1.aliexpress-media.com/kf/Sa97cb0ece6b94cbb8f31155e98fc1c03V.jpg_640x640.jpg_.webp"
+                image: "/assets/products/black-shoe.avif"
             },
             {
                 name: "Pink",
-                image: "https://ae-pic-a1.aliexpress-media.com/kf/S899d2197729b4fd394499cd32e08b0696.jpg_640x640.jpg_.webp"
+                image: "/assets/products/pink-shoe.avif"
             },
             {
                 name: "White",
-                image: "https://ae-pic-a1.aliexpress-media.com/kf/S31dfedd525514b90b956c5f8343bf2f8z.jpg_640x640.jpg_.webp"
+                image: "/assets/products/white-shoe.avif"
             }
         ],
         sizes: [

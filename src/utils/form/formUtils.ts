@@ -1,9 +1,9 @@
 import { debounce } from "../general";
 
-export const handleBillingAddressVisibility = debounce((
+export const handleBillingAddressVisibility = debounce(function (
   sameAddressCheckbox: HTMLInputElement | null,
   billingAddressSection: HTMLElement | null
-): void => {
+): void {
   if (!sameAddressCheckbox || !billingAddressSection) return;
 
   const isHidden = sameAddressCheckbox.checked;
@@ -23,10 +23,10 @@ export const handleBillingAddressVisibility = debounce((
   });
 }, 100);
 
-export const handleSecurityInfoPopup = debounce((
+export const handleSecurityInfoPopup = debounce(function (
   lockIcon: HTMLElement | null,
   speechBubble: HTMLElement | null
-): void => {
+): void {
   if (!lockIcon || !speechBubble) return;
 
   const clickHandler = (event: Event) => {
@@ -75,12 +75,12 @@ export function showGlobalError(message: string): void {
 // Enhanced form validation with better error handling
 export function validateForm(form: HTMLFormElement): { isValid: boolean; firstInvalidField?: HTMLElement } {
   const isValid = form.checkValidity();
-  
+
   if (!isValid) {
     const firstInvalid = form.querySelector(':invalid') as HTMLInputElement;
     return { isValid: false, firstInvalidField: firstInvalid };
   }
-  
+
   return { isValid: true };
 }
 
@@ -96,15 +96,15 @@ export async function handleFormSubmission(event: SubmitEvent): Promise<
 
     if (!validation.isValid && validation.firstInvalidField) {
       validation.firstInvalidField.focus();
-      validation.firstInvalidField.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
+      validation.firstInvalidField.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
       });
-      
+
       if ('reportValidity' in validation.firstInvalidField) {
         (validation.firstInvalidField as HTMLInputElement).reportValidity();
       }
-      
+
       return { status: "error", message: "Please fix the validation errors" };
     }
 
@@ -125,7 +125,7 @@ export function smoothScrollTo(element: HTMLElement, options: ScrollIntoViewOpti
     block: 'start',
     ...options
   };
-  
+
   // Use requestAnimationFrame for better performance
   requestAnimationFrame(() => {
     element.scrollIntoView(defaultOptions);

@@ -17,19 +17,19 @@ export const validationRules: Record<string, ValidationRule> = {
     errorMessage: "Please enter a valid credit card number",
   },
   firstName: {
-    validator: (value: string) => /^[a-zA-Z\s\'-]{1,50}$/.test(value.trim()),
+    validator: (value: string) => /^[a-zA-Z\s'-]{1,50}$/.test(value.trim()),
     errorMessage: "Please enter a valid first name",
   },
   lastName: {
-    validator: (value: string) => /^[a-zA-Z\s\'-]{1,50}$/.test(value.trim()),
+    validator: (value: string) => /^[a-zA-Z\s'-]{1,50}$/.test(value.trim()),
     errorMessage: "Please enter a valid last name",
   },
   address: {
-    validator: (value: string) => /^[a-zA-Z0-9\s.,#\-\/]{1,100}$/.test(value.trim()),
+    validator: (value: string) => /^[a-zA-Z0-9\s.,#\-/]{1,100}$/.test(value.trim()),
     errorMessage: "Please enter a valid address",
   },
   city: {
-    validator: (value: string) => /^[a-zA-Z\s\-]{1,50}$/.test(value.trim()),
+    validator: (value: string) => /^[a-zA-Z\s-]{1,50}$/.test(value.trim()),
     errorMessage: "Please enter a valid city",
   },
   zipCode: {
@@ -38,7 +38,7 @@ export const validationRules: Record<string, ValidationRule> = {
   },
   phoneNumber: {
     validator: (value: string) => {
-      const cleanValue = value.replace(/[\s\(\)\-\+]/g, '');
+      const cleanValue = value.replace(/[\s()-+]/g, '');
       // Allow optional +1 prefix, followed by exactly 10 digits
       return /^1?\d{10}$/.test(cleanValue);
     },

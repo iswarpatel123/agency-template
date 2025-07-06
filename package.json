@@ -2,13 +2,17 @@
   "name": "agency-template",
   "type": "module",
   "version": "0.0.1",
-"scripts": {
-  "dev": "astro dev",
-  "start": "astro dev",
-  "build": "astro check && astro build",
-  "preview": "astro preview",
-  "astro": "astro"
-},
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "npm run typecheck && npm run lint && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.astro --max-warnings=100",
+    "lint:fix": "eslint . --ext .ts,.tsx,.astro --fix",
+    "prepare": "husky install"
+  },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/solid-js": "^5.0.4",
@@ -24,13 +28,78 @@
     "solid-js": "^1.9.3",
     "tailwindcss": "^3.4.1",
     "tslib": "^2.8.1",
-    "typescript": "^5.3.3",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.0",
     "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "astro-eslint-parser": "^1.2.2",
+    "eslint": "^8.44.0",
+    "eslint-plugin-astro": "^0.27.1",
+    "husky": "^8.0.0",
+    "lint-staged": "^14.0.0",
     "prettier": "^3.2.4",
-    "prettier-plugin-astro": "^0.13.0"
+    "prettier-plugin-astro": "^0.13.0",
+    "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,astro,js,jsx,json,css,md,mdx,vue,yaml,yml}": "eslint --fix"
+  },
+  "main": "src/index.ts",
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "browser": true,
+      "es2022": true
+    },
+    "rules": {
+      "@typescript-eslint/triple-slash-reference": "warn",
+      "@typescript-eslint/no-empty-interface": "warn",
+      "no-empty-pattern": "warn",
+      "no-useless-catch": "warn",
+      "@typescript-eslint/no-inferrable-types": "warn",
+      "no-useless-escape": "warn"
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:astro/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "*.astro"
+        ],
+        "parser": "astro-eslint-parser",
+        "parserOptions": {
+          "parser": "@typescript-eslint/parser",
+          "extraFileExtensions": [
+            ".astro"
+          ]
+        },
+        "rules": {
+          "astro/no-conflict-set-directives": "warn",
+          "astro/no-unused-define-vars-in-style": "warn"
+        }
+      },
+      {
+        "files": [
+          "*.ts",
+          "*.tsx"
+        ],
+        "parser": "@typescript-eslint/parser"
+      }
+    ]
   }
 }

@@ -20,8 +20,10 @@ const RETRY_DELAY = 1000;
 export const BraintreeHostedFields = (props: Props) => {
   const [hostedFieldsInstance, setHostedFieldsInstance] = createSignal<HostedFields | null>(null);
   const [dataCollectorInstance, setDataCollectorInstance] = createSignal<DataCollector | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isValid, setIsValid] = createSignal(false);
   const [isLoading, setIsLoading] = createSignal(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [retryCount, setRetryCount] = createSignal(0);
   const [deviceData, setDeviceData] = createSignal<string>('');
   const [isInitialized, setIsInitialized] = createSignal(false);
