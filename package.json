@@ -7,6 +7,7 @@
     "start": "astro dev --host 0.0.0.0 --port ${PORT:-4321}",
     "build": "astro build",
     "build:full": "npm run typecheck && npm run lint && astro build",
+    "build:stats": "astro build",
     "preview": "astro preview --host 0.0.0.0 --port ${PORT:-4321}",
     "astro": "astro",
     "typecheck": "tsc --noEmit",
@@ -43,6 +44,7 @@
     "lint-staged": "^14.0.0",
     "prettier": "^3.2.4",
     "prettier-plugin-astro": "^0.13.0",
+    "rollup-plugin-visualizer": "^5.9.2",
     "typescript": "^5.8.3"
   },
   "lint-staged": {

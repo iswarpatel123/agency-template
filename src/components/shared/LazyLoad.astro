@@ -1,0 +1,79 @@
+---
+/**
+ * LazyLoad Component
+ * Wrap any element and it will fade in once it enters the viewport.
+ * If the wrapped element is an <img>, provide its real source via the `src` prop –
+ * the component will set `src=""` initially and swap it in when visible, enabling
+ * native browser lazy-loading without downloading the asset up-front.
+ *
+ * Usage examples:
+ *  <LazyLoad tag="img" src="/hero.png" alt="Hero" class="w-full" />
+ *  <LazyLoad>
+ *    <MyHeavyClientComponent client:visible />
+ *  </LazyLoad>
+ */
+const {
+  tag = 'div',        // the HTML tag to render (e.g. 'img', 'div')
+  src = '',           // if tag === 'img', the image source
+  loading = 'lazy',   // default loading strategy for images
+  ...rest
+} = Astro.props;
+
+const Tag = tag;
+---
+
+<Tag
+  data-astro-lazy
+  {...rest}
+  class={`astro-lazy${rest.class ? ' ' + rest.class : ''}`}
+  {...(Tag === 'img'
+    ? { src: '', 'data-src': src, loading }
+    : {})}
+>
+  <slot />
+</Tag>
+
+<style>
+  .astro-lazy {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+  .astro-lazy.visible {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  // Lazily swap `data-src` → `src` for images and reveal content when visible
+  document.addEventListener('DOMContentLoaded', () => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+
+            // If this is an image, move data-src → src so the network request only
+            // fires once the element is on screen. Also ensure decoding is async.
+            if (el.tagName === 'IMG') {
+              const img = el as HTMLImageElement;
+              if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                img.decoding = 'async';
+              }
+            }
+
+            el.classList.add('visible');
+            io.unobserve(el);
+          }
+        });
+      },
+      {
+        rootMargin: '200px',
+        threshold: 0.1,
+      },
+    );
+
+    document.querySelectorAll('[data-astro-lazy]').forEach((el) => io.observe(el));
+  });
+</script>

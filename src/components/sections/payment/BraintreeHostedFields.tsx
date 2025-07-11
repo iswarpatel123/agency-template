@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
-import hostedFields from 'braintree-web/hosted-fields';
-import client from 'braintree-web/client';
-import dataCollector from 'braintree-web/data-collector';
+
+
+
 import type { HostedFields, HostedFieldsEvent } from 'braintree-web/hosted-fields';
 import type { DataCollector } from 'braintree-web/data-collector';
 import { fetchClientToken } from '../../../utils/checkout/checkoutService';
@@ -39,6 +39,13 @@ export const BraintreeHostedFields = (props: Props) => {
   const initializeHostedFields = async (clientToken: string, attempt = 0) => {
     try {
       setIsLoading(true);
+
+      // Dynamically import Braintree libraries
+      const [{ default: client }, { default: hostedFields }, { default: dataCollector }] = await Promise.all([
+        import('braintree-web/client'),
+        import('braintree-web/hosted-fields'),
+        import('braintree-web/data-collector'),
+      ]);
 
       // Create braintree client instance
       const clientInstance = await client.create({

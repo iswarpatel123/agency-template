@@ -1,6 +1,9 @@
 ---
 import Layout from "../layouts/Layout-Checkout.astro";
 import QuantitySelector from "../components/sections/quantity/QuantitySelector.astro";
+import LazyLoad from "../components/shared/LazyLoad.astro";
+
+// Dynamic imports for heavy interactive components
 import ColorSizeSelector from "../components/sections/colorsize/ColorSizeSelector.tsx";
 import PaymentInfo from "../components/sections/payment/PaymentInfo.astro";
 import Countdown from "../components/sections/countdown/Countdown.astro";
@@ -19,18 +22,21 @@ import AddressForm from "../components/sections/address/AddressForm.astro";
           <div class="flex-1">
             <QuantitySelector />
             <div class="mt-8">
-              <div id="colorSizeSection" class="hidden">
-                <ColorSizeSelector client:visible />
-              </div>
-              <div
-                id="addressFormSection"
-                class="hidden mt-8 bg-white rounded-lg shadow-sm"
-              >
-                <AddressForm type="shipping" />
-              </div>
-              <div class="mt-8 hidden" id="paymentFormSection">
-                <PaymentForm />
-              </div>
+              <LazyLoad>
+                <div id="colorSizeSection" class="hidden">
+                  <ColorSizeSelector client:visible />
+                </div>
+              </LazyLoad>
+              <LazyLoad>
+                <div id="addressFormSection" class="mt-8 bg-white rounded-lg shadow-sm">
+                  <AddressForm type="shipping" />
+                </div>
+              </LazyLoad>
+              <LazyLoad>
+                <div class="mt-8 hidden" id="paymentFormSection">
+                  <PaymentForm />
+                </div>
+              </LazyLoad>
             </div>
             <div class="mt-8">
               <PaymentInfo />

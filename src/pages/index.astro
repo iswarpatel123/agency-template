@@ -2,10 +2,13 @@
 import Layout from "../layouts/Layout-Home.astro";
 import Hero from "../components/sections/hero/Hero.astro";
 import Brands from "../components/sections/brands/Brands.astro";
-import FAQ from "../components/sections/faq/FAQ.astro";
 import Solutions from "../components/sections/solutions/Solutions.astro";
-import Testimonials from "../components/sections/testimonials/Testimonials.astro";
 import Features from "../components/sections/features/Features.astro";
+import LazyLoad from "../components/shared/LazyLoad.astro";
+
+// Dynamic imports for components below the fold
+const Testimonials = (await import("../components/sections/testimonials/Testimonials.astro")).default;
+const FAQ = (await import("../components/sections/faq/FAQ.astro")).default;
 ---
 
 <Layout title="Barefoot Shoes">
@@ -14,7 +17,11 @@ import Features from "../components/sections/features/Features.astro";
     <Brands className="py-8" />
     <Features className="py-8" />
     <Solutions className="py-8" />
-    <Testimonials className="py-8" />
-    <FAQ className="py-8" />
+    <LazyLoad>
+      <Testimonials className="py-8" />
+    </LazyLoad>
+    <LazyLoad>
+      <FAQ className="py-8" />
+    </LazyLoad>
   </main>
 </Layout>
